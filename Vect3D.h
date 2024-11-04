@@ -1,8 +1,8 @@
 #pragma once
 #include "Windows.h"
+#include <cmath>
 
-
-typedef enum LightType
+enum class LightType
 {
 	DIRECTIONAL, POINT, AMBIENT
 };
@@ -18,7 +18,10 @@ struct Vect3D
 	Vect3D operator-(const Vect3D& other) const { return Vect3D(x - other.x, y - other.y, z - other.z); }
 	Vect3D operator+(const Vect3D& other) const { return Vect3D(x + other.x, y + other.y, z + other.z); }
 	Vect3D operator*(const Vect3D& other) const { return Vect3D(x * other.x, y * other.y, z * other.z); }
+	Vect3D operator/(const Vect3D& other) const { return Vect3D(x / other.x, y / other.y, z / other.z); }
+	Vect3D operator/(const double& other) const { return Vect3D(x / other, y / other, z / other); }
 	Vect3D operator*(const double& other) const { return Vect3D(x * other, y * other, z * other); }
+	Vect3D norm() const { return Vect3D(abs(x), abs(y), abs(z)); }
 	double dot(const Vect3D& other) const { return x * other.x + y * other.y + z * other.z; }
 
 	 
@@ -50,7 +53,7 @@ struct QuadraticAnswer
 
 struct Light 
 {
-	enum LightType type;
+	enum LightType { DIRECTIONAL, POINT, AMBIENT }  type;
 	float intensity;
 	Vect3D pos;
 };

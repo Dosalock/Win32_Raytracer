@@ -10,7 +10,7 @@ Vect3D D = {};
 Vect3D N = {};
 Vect3D P = {};
 
-Sphere scene[3] = {};
+Sphere scene[4] = {};
 Light lights[3] = {};
 
 HBITMAP hBitmap = NULL;
@@ -37,14 +37,19 @@ void CreateScene()
 	scene[2].radius = 1;
 	scene[2].color = RGB(0, 0, 255);
 
-	lights[0].type = AMBIENT;
-	lights[0].intensity = 0.2;
+	scene[3].center = Vect3D(0, -5002, 0);
+	scene[3].radius = 5000;
+	scene[3].color = RGB(255, 255, 0);
 
-	lights[1].type = POINT;
+	lights[0].type = lights->AMBIENT;
+	lights[0].intensity = 0.2;
+	//lights[0].pos = { 0,0,0 }; //prettysure this is useless
+
+	lights[1].type = lights->POINT;
 	lights[1].intensity = 0.6;
 	lights[1].pos = { 2, 1, 0 };
 
-	lights[2].type = POINT;
+	lights[2].type = lights->DIRECTIONAL;
 	lights[2].intensity = 0.6;
 	lights[2].pos = { 1, 4, 4 };
 
@@ -56,13 +61,13 @@ double CalcLight()
 	Vect3D L = {};
 	for (int i = 0; i < sizeof(lights) / sizeof(Light); i++)
 	{
-		if (lights[i].type == AMBIENT)
+		if (lights[i].type == lights->AMBIENT)
 		{
 			j += lights[i].intensity;
 		}
 		else
 		{
-			if (lights[i].type == POINT)
+			if (lights[i].type == lights->POINT)
 			{
 				L = lights[i].pos - P;
 			}
@@ -70,14 +75,15 @@ double CalcLight()
 			{
 				L = lights[i].pos;
 			}
-			double n_dot_l = N.dot(L);
+			double n_dot_l = N.dot(L.norm());
 			if (n_dot_l > 0)
 			{
-				i += lights[i].intensity * n_dot_l / 1 * 1; // length(N) * length(L)
+				j += lights[i].intensity * n_dot_l / (sqrt(N.x * N.x + N.y * N.y + N.z * N.z) * sqrt(L.x * L.x + L.y * L.y + L.z * L.z)); // length(N) * length(L)
 			}
+			
 		}
-		return i;
 	}
+	return j;
 }
 void Draw();
 void init()
@@ -296,8 +302,12 @@ COLORREF TraceRay(Vect3D O, Vect3D D)
 
 	 P = O + (D * closest_t);
 	 N = P - closest_sphere->center;
-	 N = N; // / N
-	return closest_sphere->color * CalcLight();
+	 N = N / sqrt(N.x * N.x + N.y * N.y + N.z * N.z); // / N
+	 double res = CalcLight();
+	 int r = static_cast<int>(GetRValue(closest_sphere->color) * res);
+	 int g = static_cast<int>(GetGValue(closest_sphere->color) * res);
+	 int b = static_cast<int>(GetBValue(closest_sphere->color) * res);
+	return RGB(r,g,b);
 	 
 }
 
