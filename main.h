@@ -3,6 +3,7 @@
 /*------------------Libraries---------------------*/
 #include "Windows.h"
 #include <vector>
+#include <math.h>
 /*----------------My Libraries---------------------*/
 #include "Vect3D.h"
 /*---------------------------------------*/
