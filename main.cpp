@@ -7,9 +7,11 @@
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 Vect3D D = {};
+Vect3D N = {};
+Vect3D P = {};
 
 Sphere scene[3] = {};
-
+Light lights[3] = {};
 
 HBITMAP hBitmap = NULL;
 HDC hdcWindow = NULL;
@@ -17,6 +19,7 @@ BYTE *lpvBits = NULL;
 RECT window = {};
 int height = 0;
 int width = 0;
+
 
 
 void CreateScene()
@@ -34,9 +37,48 @@ void CreateScene()
 	scene[2].radius = 1;
 	scene[2].color = RGB(0, 0, 255);
 
+	lights[0].type = AMBIENT;
+	lights[0].intensity = 0.2;
 
+	lights[1].type = POINT;
+	lights[1].intensity = 0.6;
+	lights[1].pos = { 2, 1, 0 };
+
+	lights[2].type = POINT;
+	lights[2].intensity = 0.6;
+	lights[2].pos = { 1, 4, 4 };
+
+	
 }
-
+double CalcLight()
+{
+	float j = 0.0;
+	Vect3D L = {};
+	for (int i = 0; i < sizeof(lights) / sizeof(Light); i++)
+	{
+		if (lights[i].type == AMBIENT)
+		{
+			j += lights[i].intensity;
+		}
+		else
+		{
+			if (lights[i].type == POINT)
+			{
+				L = lights[i].pos - P;
+			}
+			else
+			{
+				L = lights[i].pos;
+			}
+			double n_dot_l = N.dot(L);
+			if (n_dot_l > 0)
+			{
+				i += lights[i].intensity * n_dot_l / 1 * 1; // length(N) * length(L)
+			}
+		}
+		return i;
+	}
+}
 void Draw();
 void init()
 {
@@ -250,7 +292,12 @@ COLORREF TraceRay(Vect3D O, Vect3D D)
 	 {
 		 return RGB(255, 255, 255);
 	 }
-	 return closest_sphere->color;
+
+
+	 P = O + (D * closest_t);
+	 N = P - closest_sphere->center;
+	 N = N; // / N
+	return closest_sphere->color * CalcLight();
 	 
 }
 

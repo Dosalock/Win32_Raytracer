@@ -1,6 +1,13 @@
 #pragma once
 #include "Windows.h"
 
+
+typedef enum LightType
+{
+	DIRECTIONAL, POINT, AMBIENT
+};
+
+
 struct Vect3D 
 {
 	double x;
@@ -10,6 +17,8 @@ struct Vect3D
 
 	Vect3D operator-(const Vect3D& other) const { return Vect3D(x - other.x, y - other.y, z - other.z); }
 	Vect3D operator+(const Vect3D& other) const { return Vect3D(x + other.x, y + other.y, z + other.z); }
+	Vect3D operator*(const Vect3D& other) const { return Vect3D(x * other.x, y * other.y, z * other.z); }
+	Vect3D operator*(const double& other) const { return Vect3D(x * other, y * other, z * other); }
 	double dot(const Vect3D& other) const { return x * other.x + y * other.y + z * other.z; }
 
 	 
@@ -37,4 +46,11 @@ struct QuadraticAnswer
 	double t1;
 	double t2;
 	QuadraticAnswer(double t1 = 0, double t2 = 0) : t1(t1), t2(t2) {}
+};
+
+struct Light 
+{
+	enum LightType type;
+	float intensity;
+	Vect3D pos;
 };
