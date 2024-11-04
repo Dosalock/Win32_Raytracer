@@ -4,6 +4,7 @@
 #include "Windows.h"
 #include <vector>
 #include <math.h>
+#include <iostream>
 /*----------------My Libraries---------------------*/
 #include "Vect3D.h"
 /*---------------------------------------*/

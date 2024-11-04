@@ -11,13 +11,15 @@ Vect3D D = {};
 Sphere scene[3] = {};
 
 
-static HBITMAP hBitmap = NULL;
-static HDC hdcWindow = NULL;
-static HDC hdcMem = NULL;
-static LPVOID lpvBits = NULL;
+HBITMAP hBitmap = NULL;
+HDC hdcWindow = NULL;
+BYTE *lpvBits = NULL;
+RECT window = {};
+int height = 0;
+int width = 0;
 
 
-void createScene()
+void CreateScene()
 {
 	scene[0].center = Vect3D(0, -1, 3);
 	scene[0].radius = 1;
@@ -35,7 +37,34 @@ void createScene()
 
 }
 
-void Draw(LPVOID lpvBit, int width, int height);
+void Draw();
+void init()
+{
+	CreateScene();
+    width = window.right;
+    height = window.bottom;
+
+    BITMAPINFO bmi = {};
+    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmi.bmiHeader.biWidth = width;
+    bmi.bmiHeader.biHeight = height; // Negative to have a top-down DIB
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biBitCount = 32;
+    bmi.bmiHeader.biCompression = BI_RGB;
+
+    // Create the DIB section and obtain a pointer to the pixel buffer
+    hBitmap = CreateDIBSection(NULL, &bmi, DIB_RGB_COLORS, (void**)&lpvBits, NULL, 0);
+
+    if (!lpvBits || !hBitmap) {
+        MessageBox(NULL, L"Could not allocate memory for bitmap", L"Error", MB_OK | MB_ICONERROR);
+        exit(1);
+    }
+
+    // Initialize all pixels to black
+    memset(lpvBits, 0, width * height * 4);
+
+
+}
 
 int WINAPI WinMain(HINSTANCE hInstance, 
 					HINSTANCE hPrevInstance, 
@@ -61,7 +90,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		L"What Is This Text",
 		WS_OVERLAPPEDWINDOW,		// Style of window
 
-		CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+		CW_USEDEFAULT, CW_USEDEFAULT, 800, 800,
 
 		NULL,
 		NULL,
@@ -74,6 +103,8 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		return 0;
 	}
 
+	GetClientRect(hwnd, &window);
+	init();
 	ShowWindow(hwnd, nCmdShow);
 	UpdateWindow(hwnd);
 
@@ -85,117 +116,29 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		DispatchMessage(&msg);
 	}
 	
-	hdcWindow = GetDC(hwnd);
-		BITMAPINFO bi;
-		ZeroMemory(&bi, sizeof(BITMAPINFO));
-		bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-		//
-		
-		if (!GetDIBits(hdcWindow, hBitmap, -1, height, NULL, &bi, DIB_RGB_COLORS))
-			return NULL;
-
-			// Allocate mem for bitmap
-		if ((lpvBits = new char[bi.bmiHeader.biSizeImage]) == NULL)
-			delete[] lpvBits;
-			return NULL;
-
-		if (!GetDIBits(hdcWindow, hBitmap, -1, height, lpvBits, &bi, DIB_RGB_COLORS))
-			return NULL;
-
-			//
-
-			// Select bitmap into memory DC
-			//Draw(lpvBits, width, height);
-		BYTE* pixel = static_cast<BYTE*>(lpvBits) + (0 * bi.bmiHeader.biWidth + 1) * 4;
-
-		pixel[-1] = 255;
-		pixel[0] = 0;
-		pixel[1] = 0;
-		pixel[2] = 255;
-		SetDIBits(hdcMem, hBitmap, -1, height, (LPVOID)lpvBits, &bi, DIB_RGB_COLORS);
-
-
-
 	return 0; 
-}
-
-void SetPixelColor(int x, int y)
-{
-			//LPVOID lpvBits = NULL;
-			//BITMAPINFO bi;
-			//ZeroMemory(&bi, sizeof(BITMAPINFO));
-			//bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-			//
-
-			//if (!GetDIBits(hdcWindow, hBitmap, -1, height, NULL, &bi, DIB_RGB_COLORS))
-			//	return NULL;
-
-			//// Allocate mem for bitmap
-			//if ((lpvBits = new char[bi.bmiHeader.biSizeImage]) == NULL)
-			//	delete[] lpvBits;
-			//	return NULL;
-
-			//if (!GetDIBits(hdcWindow, hBitmap, -1, height, lpvBits, &bi, DIB_RGB_COLORS))
-			//	return NULL;
-
-			//
-
-			//// Select bitmap into memory DC
-			//Draw(lpvBits, width, height);
-			//BYTE* pixel = static_cast<BYTE*>(lpvBits) + (0 * bi.bmiHeader.biWidth + 1) * 4;
-
-			//pixel[-1] = 255;
-			//pixel[0] = 0;
-			//pixel[1] = 0;
-			//pixel[2] = 255;
-			//SetDIBits(hdcMem, hBitmap, -1, height, (LPVOID)lpvBits, &bi, DIB_RGB_COLORS);
-
 }
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 
-
+	
+	width = window.right;
+	height = window.bottom;
 	switch (uMsg)
 	{
 		case WM_CREATE:
 		{
-			RECT rect;
-			GetClientRect(hwnd, &rect);
-			int width = rect.right - rect.left;
-			int height = rect.bottom - rect.top;
-
-
-			// Create memory DC compatible with window's DC
-			PAINTSTRUCT ps;
-			HDC hdc = BeginPaint(hwnd, &ps);
-			hdcMem = CreateCompatibleDC(hdc);
-
-			// Create bitmap buffer 
-			hBitmap = CreateCompatibleBitmap(hdc, width, height);
 			
-			
-			//Draw(lpvBits, width, height);
-			 if (hBitmap)
-			{
-				 HGDIOBJ oldBitmap = SelectObject(hdcMem, hBitmap);
 
 
-				 BITMAP bm;
-				 GetObject(hBitmap, sizeof(BITMAP), &bm);
-				 BitBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem
-					 , 0, 0, SRCCOPY);
-			}
-		
-
-			ReleaseDC(hwnd, hdc);
-			delete[] lpvBits;
 			break;
 		}
 		case WM_DESTROY:
 		{
 			// Cleanup
-			if (hBitmap) DeleteObject(hBitmap);
-			if (hdcMem) DeleteDC(hdcMem);
+			if (hBitmap) {
+                DeleteObject(hBitmap);
+            }
 			PostQuitMessage(0);
 		
 			break;
@@ -204,8 +147,19 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_PAINT:
 		{
 			PAINTSTRUCT ps;
-		
+			
+			GetClientRect(hwnd, &window); // Use client area dimensions
+			width = window.right;
+			height = window.bottom;
 			HDC hdc = BeginPaint(hwnd, &ps);
+			
+			HDC hdcMem = CreateCompatibleDC(hdc);
+			HGDIOBJ oldBitmap = SelectObject(hdcMem, hBitmap);
+			
+			BitBlt(hdc, 0, 0, width, height, hdcMem, 0, 0, SRCCOPY);
+
+			SelectObject(hdcMem, oldBitmap);
+			DeleteDC(hdcMem);
 
 			// All painting occurs here, between BeginPaint and EndPaint.
 
@@ -216,6 +170,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_MOVE:
 		{
 			// TODO: do we want to do something on move?
+		}
+		case WM_KEYDOWN:
+		{
+			if (wParam == 'Q') {
+				Draw();
+				InvalidateRect(hwnd, NULL, TRUE);
+			}
+			break;
 		}
 		default:
 		{
@@ -229,6 +191,7 @@ QuadraticAnswer IntersectRaySphere(Vect3D O, Vect3D D, Sphere sphere)
 	double t1, t2;
 
 	Vect3D CO = {};
+	ZeroMemory(&CO, sizeof(Vect3D));
 	CO.x = O.x - sphere.center.x;
 	CO.y = O.y - sphere.center.y;
 	CO.z = O.z - sphere.center.z;
@@ -244,18 +207,22 @@ QuadraticAnswer IntersectRaySphere(Vect3D O, Vect3D D, Sphere sphere)
 		return QuadraticAnswer(INFINITY, INFINITY); 
 	}
 	
-	t1 = (-(b)+(sqrt(discr) / (2 * a)));
-	t2 = (-(b)-(sqrt(discr) / (2 * a)));
-	
-	return QuadraticAnswer(t1, t2);
-}
+	t1 = (-b + sqrt(discr)) / (2 * a);
+	t2 = (-b - sqrt(discr)) / (2 * a);
+	if (t1 > 0 && t2 > 0) {
+        return QuadraticAnswer(min(t1, t2), max(t1, t2));
+    } else if (t1 > 0) {
+        return QuadraticAnswer(t1, INFINITY);
+    } else if (t2 > 0) {
+        return QuadraticAnswer(t2, INFINITY);
+    }
+    return QuadraticAnswer(INFINITY, INFINITY);}
 
 Vect3D CanvasToViewport(int x, int y, int width, int height) 
 {
 	// for simplicity : Vw = Vh = d = 1    approx 53 fov
-	x += 1; 
-	y += 1;
-	return Vect3D(x * 1 / width, y * 1 / height, 1);
+
+	return Vect3D(x * 1.0 / width, y * 1.0 / height, 1);
 }
 COLORREF TraceRay(Vect3D O, Vect3D D) 
 {
@@ -268,12 +235,12 @@ COLORREF TraceRay(Vect3D O, Vect3D D)
 		 double t2 = res.t2;
 		 
 		
-		 if (0 < t1 < INFINITY && t1 < closest_t)
+		 if (t1 > 0  && t1 < closest_t)
 		 {
 			 closest_t = t1;
 			 closest_sphere = &scene[i];
 		 }
-		 if (0 < t2 < INFINITY && t2 < closest_t)
+		 if (t2 > 0 && t2 < closest_t)
 		 {
 			 closest_t = t2;
 			 closest_sphere = &scene[i];
@@ -287,19 +254,28 @@ COLORREF TraceRay(Vect3D O, Vect3D D)
 	 
 }
 
-void Draw(LPVOID lpvBits, int width, int height)
+void Draw()
 {
 	Vect3D O = {0, 0, 0};
 	
-	for (int x = -width/2; x <= width/2; x++)
+	for (int x = 0; x < width; ++x)
 	{
-		for (int y = -height/2; y <= height/2; y++)
+		for (int y = 0; y < height; ++y)
 		{
-			D = CanvasToViewport(x, y, width, height);
+			D = CanvasToViewport(x - width / 2, y - height/2, width, height);
 			COLORREF color = TraceRay(O, D);
+		 
 			
+			int offset = (y * width + x) * 4;
+			if (offset >= 0 && offset < width * height * 4 - 4) {
+				lpvBits[offset + 0] = (int)GetBValue(color);
+				lpvBits[offset + 1] = (int)GetGValue(color);
+				lpvBits[offset + 2] = (int)GetRValue(color);
+				lpvBits[offset + 3] = 255;
+			}
+		
 		}
-	}
+	} 
 
 	/*
 	* 0 Viewpoint 
