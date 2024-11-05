@@ -18,7 +18,10 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Vect3D.cpp">
+    <ClCompile Include="raystructs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="raytrace.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -26,7 +29,10 @@
     <ClInclude Include="main.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Vect3D.h">
+    <ClInclude Include="raystructs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="raytrace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

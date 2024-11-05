@@ -1,4 +1,7 @@
 #pragma once
+#ifndef VECT3D_H
+#define VECT3D_H
+
 #include "Windows.h"
 #include <cmath>
 
@@ -55,6 +58,8 @@ struct QuadraticAnswer
 struct Light 
 {
 	enum LightType { DIRECTIONAL, POINT, AMBIENT }  type;
-	float intensity;
+	double intensity;
 	Vect3D pos;
 };
+
+#endif
