@@ -31,11 +31,11 @@ void CreateScene()
 
 	scene[1].center = Vect3D(2, 0, 4);
 	scene[1].radius = 1;
-	scene[1].color = RGB(0, 255, 0);
+	scene[1].color = RGB(0, 0, 255);
 
 	scene[2].center = Vect3D(-2, 0, 4);
 	scene[2].radius = 1;
-	scene[2].color = RGB(0, 0, 255);
+	scene[2].color = RGB(0, 255, 0);
 
 	scene[3].center = Vect3D(0, -5001, 0);
 	scene[3].radius = 5000;
@@ -69,17 +69,17 @@ double CalcLight()
 		{
 			if (lights[i].type == lights->POINT)
 			{
-				L = (lights[i].pos - P).norm();
+				L = (lights[i].pos - P);
 			}
 			else
 			{
-				L = lights[i].pos.norm();
+				L = lights[i].pos;
 			}
 			
 			double n_dot_l = N.dot(L);
 			if (n_dot_l > 0)
 			{
-				intensity += lights[i].intensity * n_dot_l;// length(N) * length(L)
+				intensity += lights[i].intensity * n_dot_l/(N.len() * L.len());
 			}
 			
 		}
@@ -255,14 +255,8 @@ QuadraticAnswer IntersectRaySphere(Vect3D O_TEMPCHANGE, Vect3D D, Sphere sphere)
 	
 	t1 = (-b + sqrt(discr)) / (2 * a);
 	t2 = (-b - sqrt(discr)) / (2 * a);
-	if (t1 > 0 && t2 > 0) {
-        return QuadraticAnswer(t1, t2);
-    } else if (t1 > 0) {
-        return QuadraticAnswer(t1, INFINITY);
-    } else if (t2 > 0) {
-        return QuadraticAnswer(t2, INFINITY);
-    }
-    return QuadraticAnswer(INFINITY, INFINITY);}
+    return QuadraticAnswer(t1, t2);
+}
 
 Vect3D CanvasToViewport(int x, int y, int width, int height) 
 {
@@ -288,12 +282,12 @@ COLORREF TraceRay(Vect3D O_TEMPCHANGE, Vect3D D)
 		 double t2 = res.t2;
 		 
 		
-		 if (t1 > 0  && t1 < closest_t)
+		 if (t1 > 1e-5  && t1 < closest_t)
 		 {
 			 closest_t = t1;
 			 closest_sphere = &scene[i];
 		 }
-		 if (t2 > 0 && t2 < closest_t)
+		 if (t2 > 1e-5 && t2 < closest_t)
 		 {
 			 closest_t = t2;
 			 closest_sphere = &scene[i];
@@ -307,22 +301,18 @@ COLORREF TraceRay(Vect3D O_TEMPCHANGE, Vect3D D)
 
 	 P = O + (D * closest_t);
 	 N = P - closest_sphere->center;
-	 N = N / sqrt(N.x * N.x + N.y * N.y + N.z * N.z); // / N
+	 N = N / N.len();
+
 	 double res = CalcLight();
-	 int r = static_cast<int>(GetRValue(closest_sphere->color) * res);
-	 int g = static_cast<int>(GetGValue(closest_sphere->color) * res);
-	 int b = static_cast<int>(GetBValue(closest_sphere->color) * res);
-	 return RGB(
-		min(255, max(0, r)),
-		min(255, max(0, g)),
-		min(255, max(0, b))
-			 );
+	 int r = static_cast<int>(GetRValue(closest_sphere->color) + 0.5) * res;
+	 int g = static_cast<int>(GetGValue(closest_sphere->color) + 0.5) * res;
+	 int b = static_cast<int>(GetBValue(closest_sphere->color) + 0.5) * res;
+
+	 return RGB(r, g, b);
 }
 
 void Draw()
-{
-	//Vect3D O = {0, 0, 0};
-	
+{	
 	for (int x = 0; (x < (width)); ++x)
 	{
 		for (int y = 0; (y < (height)); ++y)
