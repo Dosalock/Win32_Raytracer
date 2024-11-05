@@ -9,7 +9,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 Vect3D D = {};
 Vect3D N = {};
 Vect3D P = {};
-
+const Vect3D O = { 0,0,0 };
 Sphere scene[4] = {};
 Light lights[3] = {};
 
@@ -37,7 +37,7 @@ void CreateScene()
 	scene[2].radius = 1;
 	scene[2].color = RGB(0, 0, 255);
 
-	scene[3].center = Vect3D(0, -5002, 0);
+	scene[3].center = Vect3D(0, -5001, 0);
 	scene[3].radius = 5000;
 	scene[3].color = RGB(255, 255, 0);
 
@@ -57,33 +57,34 @@ void CreateScene()
 }
 double CalcLight()
 {
-	float j = 0.0;
+	double intensity = 0.0;
 	Vect3D L = {};
 	for (int i = 0; i < sizeof(lights) / sizeof(Light); i++)
 	{
 		if (lights[i].type == lights->AMBIENT)
 		{
-			j += lights[i].intensity;
+			intensity += lights[i].intensity;
 		}
 		else
 		{
 			if (lights[i].type == lights->POINT)
 			{
-				L = lights[i].pos - P;
+				L = (lights[i].pos - P).norm();
 			}
 			else
 			{
-				L = lights[i].pos;
+				L = lights[i].pos.norm();
 			}
-			double n_dot_l = N.dot(L.norm());
+			
+			double n_dot_l = N.dot(L);
 			if (n_dot_l > 0)
 			{
-				j += lights[i].intensity * n_dot_l / (sqrt(N.x * N.x + N.y * N.y + N.z * N.z) * sqrt(L.x * L.x + L.y * L.y + L.z * L.z)); // length(N) * length(L)
+				intensity += lights[i].intensity * n_dot_l;// length(N) * length(L)
 			}
 			
 		}
 	}
-	return j;
+	return intensity;
 }
 void Draw();
 void init()
@@ -95,7 +96,7 @@ void init()
     BITMAPINFO bmi = {};
     bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
     bmi.bmiHeader.biWidth = width;
-    bmi.bmiHeader.biHeight = height; // Negative to have a top-down DIB
+    bmi.bmiHeader.biHeight = -height; // Negative to have a top-down DIB
     bmi.bmiHeader.biPlanes = 1;
     bmi.bmiHeader.biBitCount = 32;
     bmi.bmiHeader.biCompression = BI_RGB;
@@ -233,16 +234,13 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 	}
 }
-QuadraticAnswer IntersectRaySphere(Vect3D O, Vect3D D, Sphere sphere)
+QuadraticAnswer IntersectRaySphere(Vect3D O_TEMPCHANGE, Vect3D D, Sphere sphere)
 {
 	//int r = sphere.radius // is always 1
 	double t1, t2;
 
 	Vect3D CO = {};
-	ZeroMemory(&CO, sizeof(Vect3D));
-	CO.x = O.x - sphere.center.x;
-	CO.y = O.y - sphere.center.y;
-	CO.z = O.z - sphere.center.z;
+	CO = O - sphere.center;
 
 	double a = D.dot(D);
 	double b = 2 * CO.dot(D);
@@ -258,7 +256,7 @@ QuadraticAnswer IntersectRaySphere(Vect3D O, Vect3D D, Sphere sphere)
 	t1 = (-b + sqrt(discr)) / (2 * a);
 	t2 = (-b - sqrt(discr)) / (2 * a);
 	if (t1 > 0 && t2 > 0) {
-        return QuadraticAnswer(min(t1, t2), max(t1, t2));
+        return QuadraticAnswer(t1, t2);
     } else if (t1 > 0) {
         return QuadraticAnswer(t1, INFINITY);
     } else if (t2 > 0) {
@@ -269,13 +267,20 @@ QuadraticAnswer IntersectRaySphere(Vect3D O, Vect3D D, Sphere sphere)
 Vect3D CanvasToViewport(int x, int y, int width, int height) 
 {
 	// for simplicity : Vw = Vh = d = 1    approx 53 fov
+	double aspectRatio = static_cast<double>(width) / height;
+    
+    // Map x and y to the viewport, adjusting by aspect ratio
+    double viewportX = (x - width / 2.0) * (1.0 / width) * aspectRatio;
+    double viewportY = -(y - height / 2.0) * (1.0 / height); // Flip Y to match 3D space orientation
 
-	return Vect3D(x * 1.0 / width, y * 1.0 / height, 1);
+    return Vect3D(viewportX, viewportY, 1);  // Z=1 for perspective projection
+	//return Vect3D(x * 1.0 / width, y * 1.0 / height, 1);
 }
-COLORREF TraceRay(Vect3D O, Vect3D D) 
+COLORREF TraceRay(Vect3D O_TEMPCHANGE, Vect3D D) 
 {
 	 double closest_t = INFINITY;
 	 Sphere *closest_sphere = NULL;
+
 	 for (int i = 0; i != (sizeof(scene) / sizeof(Sphere)); i++)
 	 {
 		 QuadraticAnswer res = IntersectRaySphere(O, D, scene[i]);
@@ -307,19 +312,22 @@ COLORREF TraceRay(Vect3D O, Vect3D D)
 	 int r = static_cast<int>(GetRValue(closest_sphere->color) * res);
 	 int g = static_cast<int>(GetGValue(closest_sphere->color) * res);
 	 int b = static_cast<int>(GetBValue(closest_sphere->color) * res);
-	return RGB(r,g,b);
-	 
+	 return RGB(
+		min(255, max(0, r)),
+		min(255, max(0, g)),
+		min(255, max(0, b))
+			 );
 }
 
 void Draw()
 {
-	Vect3D O = {0, 0, 0};
+	//Vect3D O = {0, 0, 0};
 	
-	for (int x = 0; x < width; ++x)
+	for (int x = 0; (x < (width)); ++x)
 	{
-		for (int y = 0; y < height; ++y)
+		for (int y = 0; (y < (height)); ++y)
 		{
-			D = CanvasToViewport(x - width / 2, y - height/2, width, height);
+			D = CanvasToViewport(x, y, width, height);
 			COLORREF color = TraceRay(O, D);
 		 
 			
