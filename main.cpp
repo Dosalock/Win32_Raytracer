@@ -50,7 +50,7 @@ void CreateScene()
 	lights[1].pos = { 2, 1, 0 };
 
 	lights[2].type = lights->DIRECTIONAL;
-	lights[2].intensity = 0.6;
+	lights[2].intensity = 0.2;
 	lights[2].pos = { 1, 4, 4 };
 
 	
@@ -69,11 +69,11 @@ double CalcLight()
 		{
 			if (lights[i].type == lights->POINT)
 			{
-				L = (lights[i].pos - P);
+				L = (lights[i].pos - P).norm();
 			}
 			else
 			{
-				L = lights[i].pos;
+				L = lights[i].pos.norm();
 			}
 			
 			double n_dot_l = N.dot(L);
@@ -264,14 +264,18 @@ Vect3D CanvasToViewport(int x, int y, int width, int height)
 	double aspectRatio = static_cast<double>(width) / height;
     
     // Map x and y to the viewport, adjusting by aspect ratio
-    double viewportX = (x - width / 2.0) * (1.0 / width) * aspectRatio;
-    double viewportY = -(y - height / 2.0) * (1.0 / height); // Flip Y to match 3D space orientation
+	double fovMod = 1;
+    double viewportX = (x - width / 2.0) * ((1.0 * fovMod) / width) * aspectRatio;
+    double viewportY = -(y - height / 2.0) * ((1.0 * fovMod) / height); // Flip Y to match 3D space orientation
 
     return Vect3D(viewportX, viewportY, 1);  // Z=1 for perspective projection
 	//return Vect3D(x * 1.0 / width, y * 1.0 / height, 1);
 }
 COLORREF TraceRay(Vect3D O_TEMPCHANGE, Vect3D D) 
 {
+	N = {};
+	P = {};
+	
 	 double closest_t = INFINITY;
 	 Sphere *closest_sphere = NULL;
 
@@ -282,12 +286,12 @@ COLORREF TraceRay(Vect3D O_TEMPCHANGE, Vect3D D)
 		 double t2 = res.t2;
 		 
 		
-		 if (t1 > 1e-5  && t1 < closest_t)
+		 if (t1 > 0  && t1 < closest_t)
 		 {
 			 closest_t = t1;
 			 closest_sphere = &scene[i];
 		 }
-		 if (t2 > 1e-5 && t2 < closest_t)
+		 if (t2 > 0 && t2 < closest_t)
 		 {
 			 closest_t = t2;
 			 closest_sphere = &scene[i];
@@ -300,8 +304,9 @@ COLORREF TraceRay(Vect3D O_TEMPCHANGE, Vect3D D)
 
 
 	 P = O + (D * closest_t);
-	 N = P - closest_sphere->center;
-	 N = N / N.len();
+	 N = (P - closest_sphere->center).norm();
+	 N = N / N.len(); 
+	 
 
 	 double res = CalcLight();
 	 int r = static_cast<int>(GetRValue(closest_sphere->color) + 0.5) * res;
@@ -331,77 +336,6 @@ void Draw()
 		
 		}
 	} 
-
-	/*
-	* 0 Viewpoint 
-	* orientation determine where camera point
-	* assumme direction : pos Z axis +Z-> -- forward
-	*					: pos Y axis +Y-> -- up
-	*					: pos X axis +X-> -- right
-	* 
-	*-----------------------------------------------------------
-	* Frame analogy:
-	* Dimensions Vw and Vh
-	* frontal to camera orientation:
-	* perpendicular to +Z->
-	* its at a distance d and parralell to X and Y
-	* centered with respect to +Z->
-	* 
-	*	for simplicity : Vw = Vh = d = 1    approx 53 fov
-	* 
-	*----------------------------------------------------------
-	* Determine which square on the viewport corresponds to this pixel
-	* Canvas coordinate pixels Cx Cy
-	* 
-	* Vx = Cx * Vw/Cw  ---maybe Vx and Cx?---
-	* Vy = Cy * Vh/Ch
-	* Vz = d
-	* 
-	*----------------------------------------------------------
-	* Tracing Rays:
-	* start at ray from camera 
-	* 
-	* Ray passes through O and its direction is from O to V
-	* (V - O) = D->
-	* 
-	* Points on the ray:
-	* P = O + t(D->)
-	* 
-	*----------------------------------------------------------
-	* Cirlce:
-	* |P - C| = r
-	* Square root of vector lenght = <V->>
-	* 
-	* Points on the sphere:
-	* <P - C , P - C> = r^2 
-	*----------------------------------------------------------
-	* Ray meets sphere
-	* 
-	* Ray and sphere instersect at point P
-	* only variable in the circle and sphere is t
-	* O, D->, C and r are given and we looking for P
-	* 
-	* algebraic and quadratic magic we get
-	* 
-	*			 -b +- root(b^2 - 4ac)
-	* {t1, t2} = ----------------------
-	*					 2a
-	* 
-	* a = <D->, D->>
-	* b = 2<CO->, D->>
-	* c = <CO->, CO->> - r^2
-	*----------------------------------------------------------
-	* First render details about t:
-	* P = O + t(V - O)
-	* 
-	* P is every point in this ray
-	* Negative t = points in opposite direction
-	* so:
-	* 
-	* t < 0			: Behind the camera
-	* 0 <= t <= 1	: Between camera and the viewport
-	* t > 1			: In front of the viewport
-	*/
 }
 
 
