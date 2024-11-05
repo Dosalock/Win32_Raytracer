@@ -129,11 +129,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Vect3D.cpp" />
+    <ClCompile Include="raytrace.cpp" />
+    <ClCompile Include="raystructs.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h" />
-    <ClInclude Include="Vect3D.h" />
+    <ClInclude Include="raytrace.h" />
+    <ClInclude Include="raystructs.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

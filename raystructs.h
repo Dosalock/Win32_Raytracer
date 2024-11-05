@@ -1,4 +1,8 @@
 #pragma once
+#ifndef VECT3D_H
+#define VECT3D_H
+
+/*------------------Includes---------------------*/
 #include "Windows.h"
 #include <cmath>
 
@@ -21,7 +25,8 @@ struct Vect3D
 	Vect3D operator/(const Vect3D& other) const { return Vect3D(x / other.x, y / other.y, z / other.z); }
 	Vect3D operator/(const double& other) const { return Vect3D(x / other, y / other, z / other); }
 	Vect3D operator*(const double& other) const { return Vect3D(x * other, y * other, z * other); }
-	Vect3D norm() const { return Vect3D(abs(x), abs(y), abs(z)); }
+	Vect3D norm() const { return Vect3D(x * -1, y * -1, z * -1); }
+	double len() const { return sqrt(x * x + y * y + z * z); }
 	double dot(const Vect3D& other) const { return x * other.x + y * other.y + z * other.z; }
 
 	 
@@ -54,6 +59,8 @@ struct QuadraticAnswer
 struct Light 
 {
 	enum LightType { DIRECTIONAL, POINT, AMBIENT }  type;
-	float intensity;
+	double intensity;
 	Vect3D pos;
 };
+
+#endif
