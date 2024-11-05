@@ -3,8 +3,10 @@
 #define UNICODE
 #endif 
 
+/*------------------Includes---------------------*/
 #include "main.h"
 
+/*------------Varible initialzation--------------*/
 HBITMAP hBitmap = NULL;
 HDC hdcWindow = NULL;
 BYTE* lpvBits = NULL;
@@ -12,16 +14,34 @@ RECT window = {};
 int height = 0;
 int width = 0;
 
+
+/*-------------Function Declarations-------------*/
+int WINAPI WinMain(_In_ HINSTANCE hInstance,
+					_In_opt_ HINSTANCE hPrevInstance,
+					_In_ LPSTR lpCmdLine,
+					_In_ int nCmdShow);
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 
+/*-------------Function Definitions--------------*/
 
 
-
-int WINAPI WinMain(HINSTANCE hInstance, 
-					HINSTANCE hPrevInstance, 
-					LPSTR lpCmdLine, 
-					int nCmdShow) { 
+/**
+ * Application entrypoint.
+ * 
+ * @param hInstance Handle to instance, base address of module memory
+ * @param hPrevInstance Handle to previous instance - always NULL
+ *		  if you need to detect if another exists, use CreateMutex
+ *		  returns ERROR_ALREADY_EXISTS if theres already one named the same
+ * @param lpCmdLine String to the command line for the application
+ * @param nCmdShow Controls how the window is to be shown
+ * @return 
+ */
+int WINAPI WinMain(_In_ HINSTANCE hInstance, 
+					_In_opt_ HINSTANCE hPrevInstance, 
+					_In_ LPSTR lpCmdLine, 
+					_In_ int nCmdShow) { 
 
 	//Register window class
 	const wchar_t CLASS_NAME[] = L"PiskWindow";
@@ -136,6 +156,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			return DefWindowProc(hwnd, uMsg, wParam, lParam);
 		}
 	}
+	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
 

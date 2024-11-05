@@ -1,4 +1,7 @@
+/*------------------Libraries---------------------*/
 #include "raytrace.h"
+
+/*------------Varible initialzation---------------*/
 
 Vect3D D = {};
 Vect3D N = {};
@@ -7,6 +10,7 @@ const Vect3D O = { 0,0,0 };
 Sphere scene[4] = {};
 Light lights[3] = {};
 
+/*------------Funcition Defenitions---------------*/
 
 void CreateScene()
 {
@@ -89,7 +93,7 @@ void Init(BYTE** pLpvBits, RECT* window, HBITMAP* pHBitmap)
 	// Create the DIB section and obtain a pointer to the pixel buffer
 	*pHBitmap = CreateDIBSection(NULL, &bmi, DIB_RGB_COLORS, (void**)&(*pLpvBits), NULL, 0);
 
-	if (!*pLpvBits || !*pHBitmap) {
+	if (!(*pLpvBits) || !(*pHBitmap)) {
 		MessageBox(NULL, L"Could not allocate memory for bitmap", L"Error", MB_OK | MB_ICONERROR);
 		exit(1);
 	}
@@ -186,7 +190,7 @@ COLORREF TraceRay(Vect3D D)
 
 void Draw(BYTE** pLpvBits, int width, int height)
 {
-	BYTE* lpvBits = *pLpvBits;
+	
 	for (int x = 0; (x < (width)); ++x)
 	{
 		for (int y = 0; (y < (height)); ++y)
@@ -197,10 +201,10 @@ void Draw(BYTE** pLpvBits, int width, int height)
 
 			int offset = (y * width + x) * 4;
 			if (offset >= 0 && offset < width * height * 4 - 4) {
-				lpvBits[offset + 0] = (int)GetBValue(color);
-				lpvBits[offset + 1] = (int)GetGValue(color);
-				lpvBits[offset + 2] = (int)GetRValue(color);
-				lpvBits[offset + 3] = 255;
+				(*pLpvBits)[offset + 0] = (int)GetBValue(color);
+				(*pLpvBits)[offset + 1] = (int)GetGValue(color);
+				(*pLpvBits)[offset + 2] = (int)GetRValue(color);
+				(*pLpvBits)[offset + 3] = 255;
 			}
 
 		}

@@ -2,8 +2,11 @@
 #ifndef RAYTRACE_H
 #define RAYTRACE_H
 
+
+/*------------------Includes---------------------*/
 #include "raystructs.h"
 
+/*------------Variable Declarations---------------*/
 extern Vect3D D;
 extern Vect3D N;
 extern Vect3D P;
@@ -12,6 +15,7 @@ extern Sphere scene[4];
 extern Light lights[3];
 
 
+/*------------Function Declarations---------------*/
 
 void CreateScene();
 
