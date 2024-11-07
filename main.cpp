@@ -15,28 +15,18 @@ int height = 0;
 int width = 0;
 
 
-/*-------------Function Declarations-------------*/
-int WINAPI WinMain(_In_ HINSTANCE hInstance,
-					_In_opt_ HINSTANCE hPrevInstance,
-					_In_ LPSTR lpCmdLine,
-					_In_ int nCmdShow);
-
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
-
 /*-------------Function Definitions--------------*/
 
-
 /**
- * Application entrypoint.
- * 
+ * @brief Application entrypoint.
+ *
  * @param hInstance Handle to instance, base address of module memory
  * @param hPrevInstance Handle to previous instance - always NULL
  *		  if you need to detect if another exists, use CreateMutex
  *		  returns ERROR_ALREADY_EXISTS if theres already one named the same
  * @param lpCmdLine String to the command line for the application
  * @param nCmdShow Controls how the window is to be shown
- * @return 
+ * @return
  */
 int WINAPI WinMain(_In_ HINSTANCE hInstance, 
 					_In_opt_ HINSTANCE hPrevInstance, 
@@ -90,6 +80,16 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance,
 	
 	return 0; 
 }
+
+/**
+ * Called from message dispatch, determines response to messages.
+ *
+ * @param hwnd handle to the window
+ * @param uMsg message code; e.g. WM_KEYDOWN
+ * @param wParam data pertaining to message e.g. which key pressen on WM_KEYDOWN
+ * @param lParam data pertaining to message if neeeded
+ * @return
+ */
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 

@@ -1,0 +1,39 @@
+\doxysection{raytrace.\+h}
+\hypertarget{raytrace_8h_source}{}\label{raytrace_8h_source}\mbox{\hyperlink{raytrace_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#pragma\ once}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#ifndef\ RAYTRACE\_H}}
+\DoxyCodeLine{00003\ \textcolor{preprocessor}{\#define\ RAYTRACE\_H}}
+\DoxyCodeLine{00004\ }
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/Includes-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{raystructs_8h}{raystructs.h}}"{}}}
+\DoxyCodeLine{00008\ }
+\DoxyCodeLine{00009\ \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/Variable\ Declarations-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00010\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{struct_vect3_d}{Vect3D}}\ \mbox{\hyperlink{raytrace_8h_ac49ef4f99c069df8c25051edbfb22749}{D}};}
+\DoxyCodeLine{00011\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{struct_vect3_d}{Vect3D}}\ \mbox{\hyperlink{raytrace_8h_aee065a4ab4fb46ff7258cbf72d915157}{N}};}
+\DoxyCodeLine{00012\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{struct_vect3_d}{Vect3D}}\ \mbox{\hyperlink{raytrace_8h_a2f38bae6b5b36735c2b170cad7768474}{P}};}
+\DoxyCodeLine{00013\ \textcolor{keyword}{extern}\ \textcolor{keyword}{const}\ \mbox{\hyperlink{struct_vect3_d}{Vect3D}}\ \mbox{\hyperlink{raytrace_8h_a210cb5900665acc35243c2204c6872b2}{O}};}
+\DoxyCodeLine{00014\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{struct_sphere}{Sphere}}\ \mbox{\hyperlink{raytrace_8h_ade1b9109168a973d7984db75d1942041}{scene}}[4];}
+\DoxyCodeLine{00015\ \textcolor{keyword}{extern}\ \mbox{\hyperlink{struct_light}{Light}}\ \mbox{\hyperlink{raytrace_8h_a1d1ccfc754f2cb5a4182cbfea0fa8028}{lights}}[3];}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ }
+\DoxyCodeLine{00018\ \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/Function\ Declarations-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{00019\ }
+\DoxyCodeLine{00020\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{raytrace_8h_a2f5c4e5530ef2ef74cdd6acff60a20ed}{CreateScene}}();}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \textcolor{keywordtype}{double}\ \mbox{\hyperlink{raytrace_8h_a0410100db87febe87449d373a9b97820}{CalcLight}}();}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{raytrace_8h_a304d25bee726fc080c9ac077019b25b0}{Draw}}(BYTE\ **pLpvBits,\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{main_8cpp_a2474a5474cbff19523a51eb1de01cda4}{width}},\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{main_8cpp_ad12fc34ce789bce6c8a05d8a17138534}{height}});}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{raytrace_8h_a1da67f9c1edd3001cf62c06aa43f0bf2}{Init}}(BYTE\ **pLpvBits,\ RECT\ *\mbox{\hyperlink{main_8cpp_a58b1fb37cfdf8f955737868da57efda6}{window}},\ HBITMAP\ *pHBitmap);}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \mbox{\hyperlink{struct_quadratic_answer}{QuadraticAnswer}}\ \mbox{\hyperlink{raytrace_8h_a6dbf05b824774b09d57ead15ec8a14fb}{IntersectRaySphere}}(\mbox{\hyperlink{struct_vect3_d}{Vect3D}}\ \mbox{\hyperlink{raytrace_8h_ac49ef4f99c069df8c25051edbfb22749}{D}},\ \mbox{\hyperlink{struct_sphere}{Sphere}}\ sphere);}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \mbox{\hyperlink{struct_vect3_d}{Vect3D}}\ \mbox{\hyperlink{raytrace_8h_ac0224a31741092a21d115f9aebe44c50}{CanvasToViewport}}(\textcolor{keywordtype}{int}\ x,\ \textcolor{keywordtype}{int}\ y,\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{main_8cpp_a2474a5474cbff19523a51eb1de01cda4}{width}},\ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{main_8cpp_ad12fc34ce789bce6c8a05d8a17138534}{height}});}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ COLORREF\ \mbox{\hyperlink{raytrace_8h_a1d229cce4a6b4fbf97f1ee612818dd57}{TraceRay}}(\mbox{\hyperlink{struct_vect3_d}{Vect3D}}\ \mbox{\hyperlink{raytrace_8h_ac49ef4f99c069df8c25051edbfb22749}{D}});}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

@@ -1,0 +1,119 @@
+\doxysection{raytrace.\+cpp File Reference}
+\hypertarget{raytrace_8cpp}{}\label{raytrace_8cpp}\index{raytrace.cpp@{raytrace.cpp}}
+{\ttfamily \#include "{}raytrace.\+h"{}}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{raytrace_8cpp_a2f5c4e5530ef2ef74cdd6acff60a20ed}{Create\+Scene}} ()
+\item 
+double \mbox{\hyperlink{raytrace_8cpp_a0410100db87febe87449d373a9b97820}{Calc\+Light}} ()
+\item 
+void \mbox{\hyperlink{raytrace_8cpp_a1da67f9c1edd3001cf62c06aa43f0bf2}{Init}} (BYTE \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}p\+Lpv\+Bits, RECT \texorpdfstring{$\ast$}{*}\mbox{\hyperlink{main_8cpp_a58b1fb37cfdf8f955737868da57efda6}{window}}, HBITMAP \texorpdfstring{$\ast$}{*}p\+HBitmap)
+\item 
+\mbox{\hyperlink{struct_quadratic_answer}{Quadratic\+Answer}} \mbox{\hyperlink{raytrace_8cpp_a6dbf05b824774b09d57ead15ec8a14fb}{Intersect\+Ray\+Sphere}} (\mbox{\hyperlink{struct_vect3_d}{Vect3D}} \mbox{\hyperlink{raytrace_8cpp_ac49ef4f99c069df8c25051edbfb22749}{D}}, \mbox{\hyperlink{struct_sphere}{Sphere}} sphere)
+\item 
+\mbox{\hyperlink{struct_vect3_d}{Vect3D}} \mbox{\hyperlink{raytrace_8cpp_ac0224a31741092a21d115f9aebe44c50}{Canvas\+To\+Viewport}} (int x, int y, int \mbox{\hyperlink{main_8cpp_a2474a5474cbff19523a51eb1de01cda4}{width}}, int \mbox{\hyperlink{main_8cpp_ad12fc34ce789bce6c8a05d8a17138534}{height}})
+\item 
+COLORREF \mbox{\hyperlink{raytrace_8cpp_a1d229cce4a6b4fbf97f1ee612818dd57}{Trace\+Ray}} (\mbox{\hyperlink{struct_vect3_d}{Vect3D}} \mbox{\hyperlink{raytrace_8cpp_ac49ef4f99c069df8c25051edbfb22749}{D}})
+\item 
+void \mbox{\hyperlink{raytrace_8cpp_a304d25bee726fc080c9ac077019b25b0}{Draw}} (BYTE \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}p\+Lpv\+Bits, int \mbox{\hyperlink{main_8cpp_a2474a5474cbff19523a51eb1de01cda4}{width}}, int \mbox{\hyperlink{main_8cpp_ad12fc34ce789bce6c8a05d8a17138534}{height}})
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{struct_vect3_d}{Vect3D}} \mbox{\hyperlink{raytrace_8cpp_ac49ef4f99c069df8c25051edbfb22749}{D}} = \{\}
+\item 
+\mbox{\hyperlink{struct_vect3_d}{Vect3D}} \mbox{\hyperlink{raytrace_8cpp_aee065a4ab4fb46ff7258cbf72d915157}{N}} = \{\}
+\item 
+\mbox{\hyperlink{struct_vect3_d}{Vect3D}} \mbox{\hyperlink{raytrace_8cpp_a2f38bae6b5b36735c2b170cad7768474}{P}} = \{\}
+\item 
+const \mbox{\hyperlink{struct_vect3_d}{Vect3D}} \mbox{\hyperlink{raytrace_8cpp_a210cb5900665acc35243c2204c6872b2}{O}} = \{ 0,0,0 \}
+\item 
+\mbox{\hyperlink{struct_sphere}{Sphere}} \mbox{\hyperlink{raytrace_8cpp_ade1b9109168a973d7984db75d1942041}{scene}} \mbox{[}4\mbox{]} = \{\}
+\item 
+\mbox{\hyperlink{struct_light}{Light}} \mbox{\hyperlink{raytrace_8cpp_a1d1ccfc754f2cb5a4182cbfea0fa8028}{lights}} \mbox{[}3\mbox{]} = \{\}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{raytrace_8cpp_a0410100db87febe87449d373a9b97820}\index{raytrace.cpp@{raytrace.cpp}!CalcLight@{CalcLight}}
+\index{CalcLight@{CalcLight}!raytrace.cpp@{raytrace.cpp}}
+\doxysubsubsection{\texorpdfstring{CalcLight()}{CalcLight()}}
+{\footnotesize\ttfamily \label{raytrace_8cpp_a0410100db87febe87449d373a9b97820} 
+double Calc\+Light (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{raytrace_8cpp_ac0224a31741092a21d115f9aebe44c50}\index{raytrace.cpp@{raytrace.cpp}!CanvasToViewport@{CanvasToViewport}}
+\index{CanvasToViewport@{CanvasToViewport}!raytrace.cpp@{raytrace.cpp}}
+\doxysubsubsection{\texorpdfstring{CanvasToViewport()}{CanvasToViewport()}}
+{\footnotesize\ttfamily \label{raytrace_8cpp_ac0224a31741092a21d115f9aebe44c50} 
+\mbox{\hyperlink{struct_vect3_d}{Vect3D}} Canvas\+To\+Viewport (\begin{DoxyParamCaption}\item[{int}]{x}{, }\item[{int}]{y}{, }\item[{int}]{width}{, }\item[{int}]{height}{}\end{DoxyParamCaption})}
+
+\Hypertarget{raytrace_8cpp_a2f5c4e5530ef2ef74cdd6acff60a20ed}\index{raytrace.cpp@{raytrace.cpp}!CreateScene@{CreateScene}}
+\index{CreateScene@{CreateScene}!raytrace.cpp@{raytrace.cpp}}
+\doxysubsubsection{\texorpdfstring{CreateScene()}{CreateScene()}}
+{\footnotesize\ttfamily \label{raytrace_8cpp_a2f5c4e5530ef2ef74cdd6acff60a20ed} 
+void Create\+Scene (\begin{DoxyParamCaption}{}{}\end{DoxyParamCaption})}
+
+\Hypertarget{raytrace_8cpp_a304d25bee726fc080c9ac077019b25b0}\index{raytrace.cpp@{raytrace.cpp}!Draw@{Draw}}
+\index{Draw@{Draw}!raytrace.cpp@{raytrace.cpp}}
+\doxysubsubsection{\texorpdfstring{Draw()}{Draw()}}
+{\footnotesize\ttfamily \label{raytrace_8cpp_a304d25bee726fc080c9ac077019b25b0} 
+void Draw (\begin{DoxyParamCaption}\item[{BYTE \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{p\+Lpv\+Bits}{, }\item[{int}]{width}{, }\item[{int}]{height}{}\end{DoxyParamCaption})}
+
+\Hypertarget{raytrace_8cpp_a1da67f9c1edd3001cf62c06aa43f0bf2}\index{raytrace.cpp@{raytrace.cpp}!Init@{Init}}
+\index{Init@{Init}!raytrace.cpp@{raytrace.cpp}}
+\doxysubsubsection{\texorpdfstring{Init()}{Init()}}
+{\footnotesize\ttfamily \label{raytrace_8cpp_a1da67f9c1edd3001cf62c06aa43f0bf2} 
+void Init (\begin{DoxyParamCaption}\item[{BYTE \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{p\+Lpv\+Bits}{, }\item[{RECT \texorpdfstring{$\ast$}{*}}]{window}{, }\item[{HBITMAP \texorpdfstring{$\ast$}{*}}]{p\+HBitmap}{}\end{DoxyParamCaption})}
+
+\Hypertarget{raytrace_8cpp_a6dbf05b824774b09d57ead15ec8a14fb}\index{raytrace.cpp@{raytrace.cpp}!IntersectRaySphere@{IntersectRaySphere}}
+\index{IntersectRaySphere@{IntersectRaySphere}!raytrace.cpp@{raytrace.cpp}}
+\doxysubsubsection{\texorpdfstring{IntersectRaySphere()}{IntersectRaySphere()}}
+{\footnotesize\ttfamily \label{raytrace_8cpp_a6dbf05b824774b09d57ead15ec8a14fb} 
+\mbox{\hyperlink{struct_quadratic_answer}{Quadratic\+Answer}} Intersect\+Ray\+Sphere (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_vect3_d}{Vect3D}}}]{D}{, }\item[{\mbox{\hyperlink{struct_sphere}{Sphere}}}]{sphere}{}\end{DoxyParamCaption})}
+
+\Hypertarget{raytrace_8cpp_a1d229cce4a6b4fbf97f1ee612818dd57}\index{raytrace.cpp@{raytrace.cpp}!TraceRay@{TraceRay}}
+\index{TraceRay@{TraceRay}!raytrace.cpp@{raytrace.cpp}}
+\doxysubsubsection{\texorpdfstring{TraceRay()}{TraceRay()}}
+{\footnotesize\ttfamily \label{raytrace_8cpp_a1d229cce4a6b4fbf97f1ee612818dd57} 
+COLORREF Trace\+Ray (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{struct_vect3_d}{Vect3D}}}]{D}{}\end{DoxyParamCaption})}
+
+
+
+\doxysubsection{Variable Documentation}
+\Hypertarget{raytrace_8cpp_ac49ef4f99c069df8c25051edbfb22749}\index{raytrace.cpp@{raytrace.cpp}!D@{D}}
+\index{D@{D}!raytrace.cpp@{raytrace.cpp}}
+\doxysubsubsection{\texorpdfstring{D}{D}}
+{\footnotesize\ttfamily \label{raytrace_8cpp_ac49ef4f99c069df8c25051edbfb22749} 
+\mbox{\hyperlink{struct_vect3_d}{Vect3D}} D = \{\}}
+
+\Hypertarget{raytrace_8cpp_a1d1ccfc754f2cb5a4182cbfea0fa8028}\index{raytrace.cpp@{raytrace.cpp}!lights@{lights}}
+\index{lights@{lights}!raytrace.cpp@{raytrace.cpp}}
+\doxysubsubsection{\texorpdfstring{lights}{lights}}
+{\footnotesize\ttfamily \label{raytrace_8cpp_a1d1ccfc754f2cb5a4182cbfea0fa8028} 
+\mbox{\hyperlink{struct_light}{Light}} lights\mbox{[}3\mbox{]} = \{\}}
+
+\Hypertarget{raytrace_8cpp_aee065a4ab4fb46ff7258cbf72d915157}\index{raytrace.cpp@{raytrace.cpp}!N@{N}}
+\index{N@{N}!raytrace.cpp@{raytrace.cpp}}
+\doxysubsubsection{\texorpdfstring{N}{N}}
+{\footnotesize\ttfamily \label{raytrace_8cpp_aee065a4ab4fb46ff7258cbf72d915157} 
+\mbox{\hyperlink{struct_vect3_d}{Vect3D}} N = \{\}}
+
+\Hypertarget{raytrace_8cpp_a210cb5900665acc35243c2204c6872b2}\index{raytrace.cpp@{raytrace.cpp}!O@{O}}
+\index{O@{O}!raytrace.cpp@{raytrace.cpp}}
+\doxysubsubsection{\texorpdfstring{O}{O}}
+{\footnotesize\ttfamily \label{raytrace_8cpp_a210cb5900665acc35243c2204c6872b2} 
+const \mbox{\hyperlink{struct_vect3_d}{Vect3D}} O = \{ 0,0,0 \}}
+
+\Hypertarget{raytrace_8cpp_a2f38bae6b5b36735c2b170cad7768474}\index{raytrace.cpp@{raytrace.cpp}!P@{P}}
+\index{P@{P}!raytrace.cpp@{raytrace.cpp}}
+\doxysubsubsection{\texorpdfstring{P}{P}}
+{\footnotesize\ttfamily \label{raytrace_8cpp_a2f38bae6b5b36735c2b170cad7768474} 
+\mbox{\hyperlink{struct_vect3_d}{Vect3D}} P = \{\}}
+
+\Hypertarget{raytrace_8cpp_ade1b9109168a973d7984db75d1942041}\index{raytrace.cpp@{raytrace.cpp}!scene@{scene}}
+\index{scene@{scene}!raytrace.cpp@{raytrace.cpp}}
+\doxysubsubsection{\texorpdfstring{scene}{scene}}
+{\footnotesize\ttfamily \label{raytrace_8cpp_ade1b9109168a973d7984db75d1942041} 
+\mbox{\hyperlink{struct_sphere}{Sphere}} scene\mbox{[}4\mbox{]} = \{\}}
+

@@ -1,0 +1,63 @@
+\doxysection{main.\+h File Reference}
+\hypertarget{main_8h}{}\label{main_8h}\index{main.h@{main.h}}
+{\ttfamily \#include "{}Windows.\+h"{}}\newline
+{\ttfamily \#include $<$vector$>$}\newline
+{\ttfamily \#include $<$math.\+h$>$}\newline
+{\ttfamily \#include $<$iostream$>$}\newline
+{\ttfamily \#include "{}raytrace.\+h"{}}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int WINAPI \mbox{\hyperlink{main_8h_a649028f00e62144f15f268d14bc6dae0}{Win\+Main}} (\+\_\+\+In\+\_\+ HINSTANCE h\+Instance, \+\_\+\+In\+\_\+opt\+\_\+ HINSTANCE h\+Prev\+Instance, \+\_\+\+In\+\_\+ LPSTR lp\+Cmd\+Line, \+\_\+\+In\+\_\+ int n\+Cmd\+Show)
+\begin{DoxyCompactList}\small\item\em Application entrypoint. \end{DoxyCompactList}\item 
+LRESULT CALLBACK \mbox{\hyperlink{main_8h_af7de05620634745d22ea79adeef2514f}{Window\+Proc}} (HWND hwnd, UINT u\+Msg, WPARAM w\+Param, LPARAM l\+Param)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{main_8h_af7de05620634745d22ea79adeef2514f}\index{main.h@{main.h}!WindowProc@{WindowProc}}
+\index{WindowProc@{WindowProc}!main.h@{main.h}}
+\doxysubsubsection{\texorpdfstring{WindowProc()}{WindowProc()}}
+{\footnotesize\ttfamily \label{main_8h_af7de05620634745d22ea79adeef2514f} 
+LRESULT CALLBACK Window\+Proc (\begin{DoxyParamCaption}\item[{HWND}]{hwnd}{, }\item[{UINT}]{u\+Msg}{, }\item[{WPARAM}]{w\+Param}{, }\item[{LPARAM}]{l\+Param}{}\end{DoxyParamCaption})}
+
+Called from message dispatch, determines response to messages.
+
+
+\begin{DoxyParams}{Parameters}
+{\em hwnd} & handle to the window \\
+\hline
+{\em u\+Msg} & message code; e.\+g. WM\+\_\+\+KEYDOWN \\
+\hline
+{\em w\+Param} & data pertaining to message e.\+g. which key pressen on WM\+\_\+\+KEYDOWN \\
+\hline
+{\em l\+Param} & data pertaining to message if neeeded \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}
+\Hypertarget{main_8h_a649028f00e62144f15f268d14bc6dae0}\index{main.h@{main.h}!WinMain@{WinMain}}
+\index{WinMain@{WinMain}!main.h@{main.h}}
+\doxysubsubsection{\texorpdfstring{WinMain()}{WinMain()}}
+{\footnotesize\ttfamily \label{main_8h_a649028f00e62144f15f268d14bc6dae0} 
+int WINAPI Win\+Main (\begin{DoxyParamCaption}\item[{\+\_\+\+In\+\_\+ HINSTANCE}]{h\+Instance}{, }\item[{\+\_\+\+In\+\_\+opt\+\_\+ HINSTANCE}]{h\+Prev\+Instance}{, }\item[{\+\_\+\+In\+\_\+ LPSTR}]{lp\+Cmd\+Line}{, }\item[{\+\_\+\+In\+\_\+ int}]{n\+Cmd\+Show}{}\end{DoxyParamCaption})}
+
+
+
+Application entrypoint. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em h\+Instance} & Handle to instance, base address of module memory \\
+\hline
+{\em h\+Prev\+Instance} & Handle to previous instance -\/ always NULL if you need to detect if another exists, use Create\+Mutex returns ERROR\+\_\+\+ALREADY\+\_\+\+EXISTS if theres already one named the same \\
+\hline
+{\em lp\+Cmd\+Line} & String to the command line for the application \\
+\hline
+{\em n\+Cmd\+Show} & Controls how the window is to be shown \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\end{DoxyReturn}

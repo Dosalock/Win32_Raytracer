@@ -142,32 +142,38 @@ Vect3D CanvasToViewport(int x, int y, int width, int height)
 	//return Vect3D(x * 1.0 / width, y * 1.0 / height, 1);
 }
 
+Intersection ClosestIntersection(Vect3D D, double t_min, double t_max)
+{
+	double closest_t = INFINITY;
+	Sphere *closest_sphere = NULL;
+	
+	for (auto &x : scene)
+	{
+		QuadraticAnswer res = IntersectRaySphere(D, x);
+	
+		if (res.t1 > 0 && res.t1 < closest_t)
+		{
+			closest_t = res.t1;
+			closest_sphere = const_cast<Sphere*>(&x);
+		}
+		if (res.t2 > 0 && res.t2 < closest_t)
+		{
+			closest_t = res.t2;
+			closest_sphere = const_cast<Sphere *>(&x);;
+		}
+	}
+	return Intersection(closest_sphere, closest_t);
+}
+
 COLORREF TraceRay(Vect3D D)
 {
 	N = {};
 	P = {};
 
-	double closest_t = INFINITY;
-	Sphere* closest_sphere = NULL;
+	//double closest_t = INFINITY;
+	//Sphere* closest_sphere = NULL;
 
-	for (int i = 0; i != (sizeof(scene) / sizeof(Sphere)); i++)
-	{
-		QuadraticAnswer res = IntersectRaySphere(D, scene[i]);
-		double t1 = res.t1;
-		double t2 = res.t2;
-
-
-		if (t1 > 0 && t1 < closest_t)
-		{
-			closest_t = t1;
-			closest_sphere = &scene[i];
-		}
-		if (t2 > 0 && t2 < closest_t)
-		{
-			closest_t = t2;
-			closest_sphere = &scene[i];
-		}
-	}
+	auto [closest_sphere, closest_t] = ClosestIntersection(D, 0, 0);
 	if (closest_sphere == NULL)
 	{
 		return RGB(255, 255, 255);
