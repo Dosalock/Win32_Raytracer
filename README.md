@@ -1,2 +1,2 @@
 # Raytracing the rays
-TODO: Break the hellish lanscape that is main.cpp into more files
+Simple raytracer with lighting, based of "Computer Graphics from Scratch" by Gabriel Gambettas 
