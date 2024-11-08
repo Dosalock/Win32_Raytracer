@@ -1,7 +1,13 @@
+/**
+ *
+ *  @file      main.cpp
+ *  @brief	   Application entry
+ *  @author    Johan Karlsson - github.com/dosalock
+ *  @date      8.11.2024
+ *  @copyright Copyright © [2024] [Johan Karlsson]
+ *
+ */
 
-#ifndef UNICODE
-#define UNICODE
-#endif 
 
 /*------------------Includes---------------------*/
 #include "main.h"

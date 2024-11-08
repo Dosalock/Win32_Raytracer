@@ -1,3 +1,14 @@
+/**
+ *
+ *  @file      raytrace.cpp
+ *  @brief     Declaration of core raytracing functionality
+ *  @author    Johan Karlsson - github.com/dosalock
+ *  @date      8.11.2024
+ *  @copyright Copyright © [2024] [Johan Karlsson]
+ *
+ */
+
+
 /*------------------Libraries---------------------*/
 #include "raytrace.h"
 
@@ -7,6 +18,7 @@ Sphere scene[4] = {};
 Light lights[3] = {};
 
 /*------------Funcition Defenitions---------------*/
+
 Vect3D ReflectRay(Vect3D R, Vect3D N)
 {
 	return ((N*(N.dot(R))) * 2) - R;
