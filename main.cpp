@@ -34,7 +34,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance,
 					_In_ int nCmdShow) { 
 
 	//Register window class
-	const wchar_t CLASS_NAME[] = L"PiskWindow";
+	const wchar_t CLASS_NAME[] = L"Window";
 
 
 	WNDCLASS WindowClass = {};
@@ -49,7 +49,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance,
 	HWND hwnd = CreateWindowEx(
 		0,
 		CLASS_NAME,
-		L"What Is This Text",
+		L"Win32 Raytracer",
 		WS_OVERLAPPEDWINDOW,		// Style of window
 
 		CW_USEDEFAULT, CW_USEDEFAULT, 800, 800,
