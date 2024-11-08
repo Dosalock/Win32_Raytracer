@@ -16,6 +16,7 @@
 #include <iostream>
 /*----------------My Libraries---------------------*/
 #include "raytrace.h"
+#include "raystructs.h"
 
 
 /*-------------Function Declarations-------------*/

@@ -31,24 +31,28 @@ void CreateScene()
 	scene[0].color = RGB(255, 0, 0);
 	scene[0].specularity = 500;
 	scene[0].reflective = 0.2;
+	scene[0].sRadius = scene[0].radius * scene[0].radius;
 
 	scene[1].center = Vect3D(2, 0, 4);
 	scene[1].radius = 1;
 	scene[1].color = RGB(0, 0, 255);
 	scene[1].specularity = 500;
 	scene[1].reflective = 0.3;
+	scene[1].sRadius = scene[1].radius * scene[1].radius;
 
 	scene[2].center = Vect3D(-2, 0, 4);
 	scene[2].radius = 1;
 	scene[2].color = RGB(0, 255, 0);
 	scene[2].specularity = 10;
 	scene[2].reflective = 0.4;
+	scene[2].sRadius = scene[2].radius * scene[2].radius;
 
 	scene[3].center = Vect3D(0, -5001, 0);
 	scene[3].radius = 5000;
 	scene[3].color = RGB(255, 255, 0);
 	scene[3].specularity = 1000;
 	scene[3].reflective = 0.5;
+	scene[3].sRadius = scene[3].radius * scene[3].radius;
 
 	lights[0].type = lights->AMBIENT;
 	lights[0].intensity = 0.2;
@@ -144,17 +148,17 @@ void Init(BYTE** pLpvBits, RECT* window, HBITMAP* pHBitmap)
 
 }
 
-QuadraticAnswer IntersectRaySphere(Vect3D O, Vect3D D, Sphere sphere)
+QuadraticAnswer IntersectRaySphere(Vect3D O, Vect3D D, Sphere sphere, double dDot)
 {
 	//int r = sphere.radius // is always 1
 	double t1, t2;
 
 	Vect3D CO = {};
-	CO = O - sphere.center;
+	CO = O - sphere.center;	
 
-	double a = D.dot(D);
+	double a = dDot;
 	double b = 2 * CO.dot(D);
-	double c = CO.dot(CO) - sphere.radius * sphere.radius;
+	double c = CO.dot(CO) - sphere.sRadius;
 
 	double discr = b * b - 4 * a * c;
 
@@ -185,10 +189,10 @@ Intersection ClosestIntersection(Vect3D O, Vect3D D, double t_min, double t_max)
 {
 	double closest_t = INFINITY;
 	Sphere *closest_sphere = NULL;
-	
+	double dDot = D.dot(D);
 	for (auto &x : scene)
 	{
-		QuadraticAnswer res = IntersectRaySphere(O, D, x);
+		QuadraticAnswer res = IntersectRaySphere(O, D, x, dDot);
 	
 		if (t_min  < res.t1 && t_max > res.t1 && res.t1 < closest_t)
 		{
@@ -223,7 +227,7 @@ COLORREF TraceRay(Vect3D O, Vect3D D, double t_min, double t_max, int recursionD
 	N = N / N.len(); 
 
 
-	double res = CalcLight(P, N, D.norm(), closest_sphere->specularity);
+	double res = CalcLight(P, N, D.invert(), closest_sphere->specularity);
 	int r = (int)round(GetRValue(closest_sphere->color) * res);
 	int g = (int)round(GetGValue(closest_sphere->color) * res);
 	int b = (int)round(GetBValue(closest_sphere->color) * res);
@@ -238,7 +242,7 @@ COLORREF TraceRay(Vect3D O, Vect3D D, double t_min, double t_max, int recursionD
 	}
 
 
-	R = ReflectRay(D.norm(), N);
+	R = ReflectRay(D.invert(), N);
 	COLORREF reflectedColor = TraceRay(P, R, t_min, t_max, recursionDepth - 1);
 
 	int reflected_r = (int)round(GetRValue(reflectedColor)) * refl;
@@ -252,23 +256,24 @@ COLORREF TraceRay(Vect3D O, Vect3D D, double t_min, double t_max, int recursionD
 
 }
 
-void Draw(BYTE** pLpvBits, int width, int height)
+void Draw(BYTE** pLpvBits, int width, int height, Camera cam)
 {
-
 	Vect3D D = {};
 	Vect3D N = {};
 	Vect3D P = {};
 	const Vect3D O = { 0,0,0 };
 	double t_min = 0.001;
 	double t_max = INFINITY;
-	int recursionDepth = 2;
+	int recursionDepth = 1;
 
 	for (int x = 0; (x < (width)); ++x)
 	{
 		for (int y = 0; (y < (height)); ++y)
 		{
 			D = CanvasToViewport(x, y, width, height);
-			COLORREF color = TraceRay(O, D, t_min, t_max, recursionDepth);
+			D = cam.ApplyCameraRotation(D, cam);
+
+			COLORREF color = TraceRay(cam.position, D, t_min, t_max, recursionDepth);
 
 
 			int offset = (y * width + x) * 4;

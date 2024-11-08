@@ -52,7 +52,7 @@ double CalcLight(Vect3D P, Vect3D N, Vect3D V, int s);
  * @param[in] width - Viewport width in pixels
  * @param[in] height - Viewport height in pixels
  */
-void Draw(BYTE **pLpvBits, int width, int height);
+void Draw(BYTE **pLpvBits, int width, int height, Camera cam);
 
 /**
  * @brief Initzialises the scene, bitmap height & width etc.
@@ -71,7 +71,7 @@ void Init(BYTE **pLpvBits, RECT *window, HBITMAP *pHBitmap);
  * @return  QuadraticAnswer with t1 & t2 of possible points, 
  *			INFINITY INFINTY if no points found
  */
-QuadraticAnswer IntersectRaySphere(Vect3D O, Vect3D D, Sphere sphere);
+QuadraticAnswer IntersectRaySphere(Vect3D O, Vect3D D, Sphere sphere,  double dDot);
 
 
 /**

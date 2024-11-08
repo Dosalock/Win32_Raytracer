@@ -13,7 +13,7 @@
 /*-----------------------------Includes------------------------------*/
 #include "Windows.h"
 #include <cmath>
-
+#define PI 3.14159265358979323846
 
 /*-----------------------------Structs-------------------------------*/
 
@@ -36,8 +36,9 @@ struct Vect3D
 	Vect3D operator/(const Vect3D& other) const { return Vect3D(x / other.x, y / other.y, z / other.z); }
 	Vect3D operator/(const double& other) const { return Vect3D(x / other, y / other, z / other); }
 	Vect3D operator*(const double& other) const { return Vect3D(x * other, y * other, z * other); }
-	Vect3D norm() const { return Vect3D(x * -1, y * -1, z * -1); }
+	Vect3D invert() const { return Vect3D(x * -1, y * -1, z * -1); }
 	double len() const { return sqrt(x * x + y * y + z * z); }
+	Vect3D norm() const { return Vect3D(x / len(), y / len(), z / len()); }
 	double dot(const Vect3D& other) const { return x * other.x + y * other.y + z * other.z; }
 };
 
@@ -53,7 +54,7 @@ struct Sphere
 	COLORREF color;
 	int specularity;
 	double reflective;
-
+	double sRadius;
 	Sphere(
 		Vect3D center = {},
 		double radius = 0,
@@ -65,7 +66,8 @@ struct Sphere
 		radius(radius),
 		color(color),
 		specularity(specularity),
-		reflective(reflective) {}
+		reflective(reflective),
+		sRadius(radius*radius){}
 };
 
 
@@ -92,7 +94,69 @@ struct Light
 	Vect3D pos;
 };
 
+struct Camera
+{
+	Vect3D position;
+	double yaw;
+	double pitch;
+	double roll;
 
+	double DegreesToRadian(double degrees)
+	{
+		return degrees * PI / 180.0;
+	}
+
+	Vect3D RotateYaw(Vect3D direction, double yaw)
+	{
+		double rad = DegreesToRadian(yaw);
+		double cosY = cos(rad);
+		double sinY = sin(rad);
+		
+		return Vect3D(
+			direction.x * cosY + direction.z * sinY,
+			direction.y,
+			-direction.x * sinY + direction.z * cosY
+		);
+	}
+	Vect3D RotatePitch(Vect3D direction, double pitch)
+	{
+		
+		double rad = DegreesToRadian(pitch);
+		double cosX = cos(rad);
+		double sinX = sin(rad);
+
+		return Vect3D(
+			direction.x,
+			direction.y * cosX - direction.z * sinX,
+			direction.y * sinX + direction.z * cosX
+		);
+	}
+
+
+	Vect3D RotateRoll(Vect3D direction, double roll)
+	{
+
+		double rad = DegreesToRadian(roll);
+		double cosZ = cos(rad);
+		double sinZ = sin(rad);
+		
+		return Vect3D(
+			direction.x * cosZ - direction.y * sinZ,
+			direction.x * sinZ + direction.y * cosZ,
+			direction.z
+		);
+	}
+
+	Vect3D ApplyCameraRotation(Vect3D direction, Camera cam)
+	{
+		direction = RotateYaw(direction, cam.yaw);
+		direction = RotatePitch(direction, cam.pitch);
+		direction = RotateRoll(direction, cam.roll);
+
+		return direction;
+
+	}
+};
 /**
  * @struct Intersection raystruct.h
  * @brief Pointer to sphere and number T, signifies an intersection between a sphere and a vector

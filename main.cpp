@@ -17,6 +17,7 @@ HBITMAP hBitmap = NULL;
 HDC hdcWindow = NULL;
 BYTE* lpvBits = NULL;
 RECT window = {};
+Camera cam = {};
 int height = 0;
 int width = 0;
 
@@ -58,7 +59,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance,
 		L"Win32 Raytracer",
 		WS_OVERLAPPEDWINDOW,		// Style of window
 
-		CW_USEDEFAULT, CW_USEDEFAULT, 800, 800,
+		CW_USEDEFAULT, CW_USEDEFAULT, 
+		250, 250,
 
 		NULL,
 		NULL,
@@ -98,7 +100,6 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance,
  */
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-
 	
 	width = window.right;
 	height = window.bottom;
@@ -106,9 +107,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
 		case WM_CREATE:
 		{
-			
-
-
 			break;
 		}
 		case WM_DESTROY:
@@ -151,10 +149,34 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		case WM_KEYDOWN:
 		{
-			if (wParam == 'Q') {
-				Draw(&lpvBits, width, height);
-				InvalidateRect(hwnd, NULL, TRUE);
+			DWORD dwScanCode = ( lParam >> 16 ) & 0xFF;
+			switch (wParam)
+			{
+				case 'W':
+				{
+					cam.position.z += 0.1;
+					break;
+				}
+				case 'A': 
+				{
+					cam.yaw -= 5;
+					break;
+				}
+				case 'S':
+				{
+					cam.position.z -= 0.1;
+					break;
+				}
+				case 'D':
+				{
+					cam.yaw += 5;
+					break;
+				}
+				default:
+					break;
 			}
+			Draw(&lpvBits, width, height, cam);
+			InvalidateRect(hwnd, NULL, TRUE);
 			break;
 		}
 		default:
