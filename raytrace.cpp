@@ -264,7 +264,7 @@ void Draw(BYTE** pLpvBits, int width, int height, Camera cam)
 	const Vect3D O = { 0,0,0 };
 	double t_min = 0.001;
 	double t_max = INFINITY;
-	int recursionDepth = 1;
+	int recursionDepth = 2;
 
 	for (int x = 0; (x < (width)); ++x)
 	{

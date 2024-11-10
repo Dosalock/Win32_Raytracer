@@ -30,16 +30,17 @@ struct Vect3D
 
 	Vect3D(double x = 0, double y = 0, double z = 0) : x(x), y(y), z(z) { }
 	
-	Vect3D operator-(const Vect3D& other) const { return Vect3D(x - other.x, y - other.y, z - other.z); }
-	Vect3D operator+(const Vect3D& other) const { return Vect3D(x + other.x, y + other.y, z + other.z); }
-	Vect3D operator*(const Vect3D& other) const { return Vect3D(x * other.x, y * other.y, z * other.z); }
-	Vect3D operator/(const Vect3D& other) const { return Vect3D(x / other.x, y / other.y, z / other.z); }
-	Vect3D operator/(const double& other) const { return Vect3D(x / other, y / other, z / other); }
-	Vect3D operator*(const double& other) const { return Vect3D(x * other, y * other, z * other); }
+	Vect3D operator-(const Vect3D &other) const { return Vect3D(x - other.x, y - other.y, z - other.z); }
+	Vect3D operator+(const Vect3D &other) const { return Vect3D(x + other.x, y + other.y, z + other.z); }
+	Vect3D operator*(const Vect3D &other) const { return Vect3D(x * other.x, y * other.y, z * other.z); }
+	Vect3D operator/(const Vect3D &other) const { return Vect3D(x / other.x, y / other.y, z / other.z); }
+	Vect3D operator/(const double &other) const { return Vect3D(x / other, y / other, z / other); }
+	Vect3D operator*(const double &other) const { return Vect3D(x * other, y * other, z * other); }
+	Vect3D cross(const Vect3D &other) const { return Vect3D(y * other.z - z * other.y, z*other.x - x*other.z, x*other.y - y*other.z); }
 	Vect3D invert() const { return Vect3D(x * -1, y * -1, z * -1); }
 	double len() const { return sqrt(x * x + y * y + z * z); }
 	Vect3D norm() const { return Vect3D(x / len(), y / len(), z / len()); }
-	double dot(const Vect3D& other) const { return x * other.x + y * other.y + z * other.z; }
+	double dot(const Vect3D &other) const { return x * other.x + y * other.y + z * other.z; }
 };
 
 
@@ -106,6 +107,12 @@ struct Camera
 		return degrees * PI / 180.0;
 	}
 
+	/**
+	 * @brief Rotate around Y-axis (left-right rotation)
+	 * @param[in] direction - D returned by CanvasToViewPort()
+	 * @param[in] yaw - Degrees to rotate 
+	 * @return Rotated vector
+	 */
 	Vect3D RotateYaw(Vect3D direction, double yaw)
 	{
 		double rad = DegreesToRadian(yaw);
@@ -118,6 +125,13 @@ struct Camera
 			-direction.x * sinY + direction.z * cosY
 		);
 	}
+
+	/**
+	 * @brief Rotate around X-axis (up-down rotation)
+	 * @param direction - D returned by CanvasToViewPort()
+	 * @param pitch - Degrees to rotate
+	 * @return Rotated vector
+	 */
 	Vect3D RotatePitch(Vect3D direction, double pitch)
 	{
 		
@@ -132,7 +146,12 @@ struct Camera
 		);
 	}
 
-
+	/**
+	 * @brief Rotate around Z-axis (side-side rotation)
+	 * @param direction - D returned by CanvasToViewPort()
+	 * @param roll - Degrees to rotate
+	 * @return Rotated Vector
+	 */
 	Vect3D RotateRoll(Vect3D direction, double roll)
 	{
 
@@ -156,11 +175,49 @@ struct Camera
 		return direction;
 
 	}
+
+
+	/**
+	 * @brief Calculates normalized vector with forward direction for use in " W = move forward "
+	 * @return Normalized vector
+	 */
+	Vect3D CalculateForwardFromEuler()
+	{	double rPitch = DegreesToRadian(pitch);
+		double rYaw = DegreesToRadian(yaw);
+		float cosPitch = cos(rPitch);
+		float sinPitch = sin(rPitch);
+		float cosYaw = cos(rYaw);
+		float sinYaw = sin(rYaw);
+
+		return Vect3D(cosPitch * sinYaw, sinPitch, cosPitch * cosYaw).norm();
+	}
+	/**
+	 * @brief Moves camera forward
+	 * @param moveSpeed - Movement multiplier, backwards < 0 < forewards
+	 */
+	void MoveForward(double moveSpeed)
+	{
+		Vect3D forward = CalculateForwardFromEuler();
+		position.x += forward.x * moveSpeed;
+		position.y += forward.y * moveSpeed;
+		position.z += forward.z * moveSpeed;
+	}
+	/**
+	 * @brief Moves camera sideways
+	 * @param moveSpeed - Movemet multiplier, right < 0 < left
+	 */
+	void MoveSideways(double moveSpeed)
+	{
+		Vect3D right = CalculateForwardFromEuler().cross(Vect3D(0,1,0));
+		position.x += right.x * moveSpeed;
+		position.y += right.y * moveSpeed;
+		position.z += right.z * moveSpeed;
+	}
+
 };
 /**
  * @struct Intersection raystruct.h
- * @brief Pointer to sphere and number T, signifies an intersection between a sphere and a vector
- */
+ * @brief Pointer to sphere and number T, signifies an intersection between a sphere and a vector */
 struct Intersection 
 {
 	Sphere *closest_sphere;

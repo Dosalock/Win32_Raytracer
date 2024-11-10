@@ -9,10 +9,12 @@
  */
 
 
-/*------------------Includes---------------------*/
+ /*------------------Includes---------------------*/
 #include "main.h"
 
 /*------------Varible initialzation--------------*/
+#define clock std::chrono::high_resolution_clock
+
 HBITMAP hBitmap = NULL;
 HDC hdcWindow = NULL;
 BYTE* lpvBits = NULL;
@@ -20,6 +22,8 @@ RECT window = {};
 Camera cam = {};
 int height = 0;
 int width = 0;
+std::chrono::time_point deltaTime = std::chrono::steady_clock().now();
+bool cameraIsMoving = false;
 
 
 /*-------------Function Definitions--------------*/
@@ -35,17 +39,17 @@ int width = 0;
  * @param nCmdShow Controls how the window is to be shown
  * @return
  */
-int WINAPI WinMain(_In_ HINSTANCE hInstance, 
-					_In_opt_ HINSTANCE hPrevInstance, 
-					_In_ LPSTR lpCmdLine, 
-					_In_ int nCmdShow) { 
+int WINAPI WinMain(_In_ HINSTANCE hInstance,
+	_In_opt_ HINSTANCE hPrevInstance,
+	_In_ LPSTR lpCmdLine,
+	_In_ int nCmdShow) {
 
 	//Register window class
 	const wchar_t CLASS_NAME[] = L"Window";
 
 
 	WNDCLASS WindowClass = {};
-		
+
 	WindowClass.lpfnWndProc = WindowProc;
 	WindowClass.hInstance = hInstance;
 	WindowClass.lpszClassName = CLASS_NAME;
@@ -59,14 +63,14 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance,
 		L"Win32 Raytracer",
 		WS_OVERLAPPEDWINDOW,		// Style of window
 
-		CW_USEDEFAULT, CW_USEDEFAULT, 
+		CW_USEDEFAULT, CW_USEDEFAULT,
 		250, 250,
 
 		NULL,
 		NULL,
 		hInstance,
 		NULL
-		);
+	);
 
 	if (hwnd == NULL)
 	{
@@ -80,13 +84,13 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance,
 
 	MSG msg = { };
 
-	while (GetMessage(&msg, NULL, 0 , 0) > 0)
+	while (GetMessage(&msg, NULL, 0, 0) > 0)
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
-	
-	return 0; 
+
+	return 0;
 }
 
 /**
@@ -100,9 +104,26 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance,
  */
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	
+	double secondsPerFrame = 33000000;
+	float moveSpeed = 0.1f;
+	float rotationSpeed = 2.0f;
 	width = window.right;
 	height = window.bottom;
+
+	auto dEpoch = std::chrono::steady_clock::now();
+	
+	if (cameraIsMoving)
+	{
+		//cam.MoveForward(moveSpeed);
+	}
+	if ((dEpoch - deltaTime).count() > secondsPerFrame)
+	{
+		Draw(&lpvBits, width, height, cam);
+		InvalidateRect(hwnd, NULL, TRUE);
+		//std::this_thread::sleep_for(timestep);
+		deltaTime = clock::now();
+	}
+
 	switch (uMsg)
 	{
 		case WM_CREATE:
@@ -113,25 +134,25 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 			// Cleanup
 			if (hBitmap) {
-                DeleteObject(hBitmap);
-            }
+				DeleteObject(hBitmap);
+			}
 			PostQuitMessage(0);
-		
+
 			break;
 		}
 
 		case WM_PAINT:
 		{
 			PAINTSTRUCT ps;
-			
+
 			GetClientRect(hwnd, &window); // Use client area dimensions
 			width = window.right;
 			height = window.bottom;
 			HDC hdc = BeginPaint(hwnd, &ps);
-			
+
 			HDC hdcMem = CreateCompatibleDC(hdc);
 			HGDIOBJ oldBitmap = SelectObject(hdcMem, hBitmap);
-			
+
 			BitBlt(hdc, 0, 0, width, height, hdcMem, 0, 0, SRCCOPY);
 
 			SelectObject(hdcMem, oldBitmap);
@@ -140,43 +161,55 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			// All painting occurs here, between BeginPaint and EndPaint.
 
 			EndPaint(hwnd, &ps);
-		
-			break;	
+
+			break;
 		}
 		case WM_MOVE:
 		{
 			// TODO: do we want to do something on move?
 		}
+		case WM_KEYUP:
+		{
+			cameraIsMoving = false;
+			break;
+		}
 		case WM_KEYDOWN:
 		{
-			DWORD dwScanCode = ( lParam >> 16 ) & 0xFF;
 			switch (wParam)
 			{
 				case 'W':
 				{
-					cam.position.z += 0.1;
+					cam.MoveForward(moveSpeed);
 					break;
 				}
-				case 'A': 
+				case 'A':
 				{
-					cam.yaw -= 5;
+					cam.MoveSideways(moveSpeed);
 					break;
 				}
 				case 'S':
 				{
-					cam.position.z -= 0.1;
+					cam.MoveForward(-moveSpeed);
 					break;
 				}
 				case 'D':
 				{
-					cam.yaw += 5;
+					cam.MoveSideways(-moveSpeed);
+					break;
+				}
+				case 'Q':
+				{
+					cam.yaw -= rotationSpeed;
+					break;
+				}
+				case 'E':
+				{
+					cam.yaw += rotationSpeed;
 					break;
 				}
 				default:
 					break;
 			}
-			Draw(&lpvBits, width, height, cam);
-			InvalidateRect(hwnd, NULL, TRUE);
 			break;
 		}
 		default:
