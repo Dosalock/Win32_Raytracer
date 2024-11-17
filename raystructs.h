@@ -73,14 +73,14 @@ struct Sphere
 
 
 /**
- * @struct QuadraticAnswer raystruct.h
+ * @struct QuadraticRoots raystruct.h
  * @brief Simple two double struct to return answer from the quadratic formula
  */
-struct QuadraticAnswer
+struct QuadraticRoots
 {
 	double t1;
 	double t2;
-	QuadraticAnswer(double t1 = 0, double t2 = 0) : t1(t1), t2(t2) {}
+	QuadraticRoots(double t1 = 0, double t2 = 0) : t1(t1), t2(t2) {}
 };
 
 

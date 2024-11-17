@@ -148,28 +148,28 @@ void Init(BYTE** pLpvBits, RECT* window, HBITMAP* pHBitmap)
 
 }
 
-QuadraticAnswer IntersectRaySphere(Vect3D O, Vect3D D, Sphere sphere, double dDot)
+QuadraticRoots IntersectRaySphere(Vect3D O, Vect3D D, Sphere sphere, double dDot)
 {
-	//int r = sphere.radius // is always 1
-	double t1, t2;
+	Vect3D CO = O - sphere.center;
+	double co_dot_co = CO.dot(CO);
+	double co_dot_d = CO.dot(D);
 
-	Vect3D CO = {};
-	CO = O - sphere.center;	
-
-	double a = dDot;
-	double b = 2 * CO.dot(D);
-	double c = CO.dot(CO) - sphere.sRadius;
-
-	double discr = b * b - 4 * a * c;
-
-	if (discr < 0)
+	if (co_dot_d > 0 || co_dot_co < sphere.sRadius)
 	{
-		return QuadraticAnswer(INFINITY, INFINITY);
+		return {INFINITY, 0};
 	}
 
-	t1 = (-b + sqrt(discr)) / (2 * a);
-	t2 = (-b - sqrt(discr)) / (2 * a);
-	return QuadraticAnswer(t1, t2);
+	Vect3D _a = CO - D * co_dot_d;
+
+	double aSqrd = _a.dot(_a);
+
+	if (aSqrd > sphere.sRadius)
+	{
+		return QuadraticRoots(INFINITY, 0);
+	}
+	double h = sqrt(sphere.sRadius - aSqrd);
+	
+	return QuadraticRoots(h, 0);
 }
 
 Vect3D CanvasToViewport(int x, int y, int width, int height)
@@ -187,21 +187,17 @@ Vect3D CanvasToViewport(int x, int y, int width, int height)
 
 Intersection ClosestIntersection(Vect3D O, Vect3D D, double t_min, double t_max)
 {
+	QuadraticRoots res = {};
 	double closest_t = INFINITY;
 	Sphere *closest_sphere = NULL;
-	double dDot = D.dot(D);
+	
 	for (auto &x : scene)
 	{
-		QuadraticAnswer res = IntersectRaySphere(O, D, x, dDot);
-	
-		if (t_min  < res.t1 && t_max > res.t1 && res.t1 < closest_t)
+		res = IntersectRaySphere(O, D, x, 0);
+
+		if (IsInBounds(res.t1, t_min, t_max) && res.t1 < closest_t)
 		{
 			closest_t = res.t1;
-			closest_sphere = const_cast<Sphere*>(&x);
-		}
-		if (t_min  < res.t2 && t_max > res.t2 && res.t2 < closest_t)
-		{
-			closest_t = res.t2;
 			closest_sphere = const_cast<Sphere*>(&x);
 		}
 	}
@@ -220,12 +216,6 @@ COLORREF TraceRay(Vect3D O, Vect3D D, double t_min, double t_max, int recursionD
 	{
 		return RGB(0, 0, 0);
 	}
-
-
-	P = O + (D * closest_t);
-	N = (P - closest_sphere->center);
-	N = N / N.len(); 
-
 
 	double res = CalcLight(P, N, D.invert(), closest_sphere->specularity);
 	int r = (int)round(GetRValue(closest_sphere->color) * res);
@@ -264,7 +254,7 @@ void Draw(BYTE** pLpvBits, int width, int height, Camera cam)
 	const Vect3D O = { 0,0,0 };
 	double t_min = 0.001;
 	double t_max = INFINITY;
-	int recursionDepth = 2;
+	int recursionDepth = 1;
 
 	for (int x = 0; (x < (width)); ++x)
 	{

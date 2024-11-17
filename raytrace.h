@@ -71,7 +71,7 @@ void Init(BYTE **pLpvBits, RECT *window, HBITMAP *pHBitmap);
  * @return  QuadraticAnswer with t1 & t2 of possible points, 
  *			INFINITY INFINTY if no points found
  */
-QuadraticAnswer IntersectRaySphere(Vect3D O, Vect3D D, Sphere sphere,  double dDot);
+QuadraticRoots IntersectRaySphere(Vect3D O, Vect3D D, Sphere sphere,  double dDot);
 
 
 /**
@@ -107,3 +107,12 @@ COLORREF TraceRay(Vect3D O, Vect3D D, double t_min, double t_max, int recursionD
  */
 Intersection ClosestIntersection(Vect3D O, Vect3D D, double t_min, double t_max);
 
+/*------------Template Declarations---------------*/
+
+template <typename T>
+concept Scalar = std::is_scalar_v<T>;
+
+template <Scalar T>
+bool IsInBounds(const T& value, const T& low, const T& high) {
+	return !(value < low) && (value < high);
+}
