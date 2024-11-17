@@ -12,6 +12,7 @@
 
 /*------------------Includes---------------------*/
 #include "raystructs.h"
+#include <cuda.h>
 
 /*------------Variable Declarations---------------*/
 
@@ -27,7 +28,7 @@ extern Light lights[3];
  *  @param[in] N - The normal
  *  @retval   - The reflected ray
  */
-Vect3D ReflectRay(Vect3D R, Vect3D N);
+Vect3D ReflectRay(const Vect3D &R, const Vect3D &N);
 
 
 /**
@@ -44,7 +45,7 @@ void CreateScene();
  * @param[in] s - Specularity value of object 
  * @return Intensity multiplier
  */
-double CalcLight(Vect3D P, Vect3D N, Vect3D V, int s);
+double CalcLight(const Vect3D &P, const Vect3D &N, const Vect3D &V, const int &s);
 
 /**
  * @brief Main draw function, sets all the pixel values
@@ -52,7 +53,7 @@ double CalcLight(Vect3D P, Vect3D N, Vect3D V, int s);
  * @param[in] width - Viewport width in pixels
  * @param[in] height - Viewport height in pixels
  */
-void Draw(BYTE **pLpvBits, int width, int height, Camera cam);
+void Draw(BYTE **pLpvBits, const int &width, const int &height, Camera &cam);
 
 /**
  * @brief Initzialises the scene, bitmap height & width etc.
@@ -60,7 +61,7 @@ void Draw(BYTE **pLpvBits, int width, int height, Camera cam);
  * @param[in] window - Handle to rectangle of viewport
  * @param[in,out] pHBitmap - Handle to a bitmap 
  */
-void Init(BYTE **pLpvBits, RECT *window, HBITMAP *pHBitmap);
+void Init(BYTE **pLpvBits, const RECT *window, HBITMAP *pHBitmap);
 
 
 /**
@@ -68,10 +69,9 @@ void Init(BYTE **pLpvBits, RECT *window, HBITMAP *pHBitmap);
  * @param[in] O - Point of ray origin
  * @param[in] D - Ray direction from O
  * @param[in] sphere - Sphere to check if ray D from origin O will intersect
- * @return  QuadraticAnswer with t1 & t2 of possible points, 
- *			INFINITY INFINTY if no points found
+ * @return t, smallest of the two roots or INFINITY if no point intersects
  */
-QuadraticRoots IntersectRaySphere(Vect3D O, Vect3D D, Sphere sphere,  double dDot);
+double IntersectRaySphere(const Vect3D &O, const Vect3D &D, const Sphere &sphere,  const double &dDot);
 
 
 /**
@@ -82,7 +82,7 @@ QuadraticRoots IntersectRaySphere(Vect3D O, Vect3D D, Sphere sphere,  double dDo
  * @param[in] height - Viewport height
  * @return Point in space of specified pixel
  */
-Vect3D CanvasToViewport(int x, int y, int width, int height);
+Vect3D CanvasToViewport(const int &x, const int &y, const int &width, const int &height);
 
 
 /**
@@ -94,7 +94,7 @@ Vect3D CanvasToViewport(int x, int y, int width, int height);
  * @param[in] recursionDepth - How many times to calculate reflections
  * @return Color of point D from point  
  */
-COLORREF TraceRay(Vect3D O, Vect3D D, double t_min, double t_max, int recursionDepth);
+COLORREF TraceRay(const Vect3D &O, const Vect3D &D, const double &t_min, const double &t_max, const int &recursionDepth);
 
 
 /**
@@ -105,7 +105,7 @@ COLORREF TraceRay(Vect3D O, Vect3D D, double t_min, double t_max, int recursionD
  * @param[in] t_max - Maximum range of points along ray
  * @return Point of intersection to a sphere from O with direction D
  */
-Intersection ClosestIntersection(Vect3D O, Vect3D D, double t_min, double t_max);
+Intersection ClosestIntersection(const Vect3D &O, const Vect3D &D, const double &t_min, const double &t_max);
 
 /*------------Template Declarations---------------*/
 

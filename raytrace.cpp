@@ -19,7 +19,7 @@ Light lights[3] = {};
 
 /*------------Funcition Defenitions---------------*/
 
-Vect3D ReflectRay(Vect3D R, Vect3D N)
+Vect3D ReflectRay(const Vect3D &R, const Vect3D &N)
 {
 	return ((N*(N.dot(R))) * 2) - R;
 }
@@ -67,7 +67,7 @@ void CreateScene()
 	lights[2].pos = { 1, 4, 4 };
 }
 
-double CalcLight(Vect3D P, Vect3D N, Vect3D V, int s)
+double CalcLight(const Vect3D &P, const Vect3D &N, const Vect3D &V, const int &s)
 {
 	double intensity = 0.0;
 	double t_max = 0;
@@ -91,8 +91,8 @@ double CalcLight(Vect3D P, Vect3D N, Vect3D V, int s)
 				L = lights[i].pos;
 				t_max = INFINITY;
 			}
-
-			auto [shadow_sphere, shadow_t] = ClosestIntersection(P, L, 0.001, t_max);
+			L = L;
+			auto [shadow_sphere, shadow_t] = ClosestIntersection(P, L, 0.00001, t_max);
 			if (shadow_sphere != NULL)
 			{
 				continue;
@@ -120,7 +120,7 @@ double CalcLight(Vect3D P, Vect3D N, Vect3D V, int s)
 	return intensity;
 }
 
-void Init(BYTE** pLpvBits, RECT* window, HBITMAP* pHBitmap)
+void Init(BYTE** pLpvBits, const RECT* window, HBITMAP* pHBitmap)
 {
 	CreateScene();
 	int width = (*window).right;
@@ -148,31 +148,32 @@ void Init(BYTE** pLpvBits, RECT* window, HBITMAP* pHBitmap)
 
 }
 
-QuadraticRoots IntersectRaySphere(Vect3D O, Vect3D D, Sphere sphere, double dDot)
+double IntersectRaySphere(const Vect3D &O, const Vect3D &D, const Sphere &sphere, const double &dDot)
 {
-	Vect3D CO = O - sphere.center;
-	double co_dot_co = CO.dot(CO);
-	double co_dot_d = CO.dot(D);
+	Vect3D CO = {};
+	CO = O - sphere.center;
 
-	if (co_dot_d > 0 || co_dot_co < sphere.sRadius)
+	double a = dDot;
+	double b = 2 * CO.dot(D);
+	double c = CO.dot(CO) - sphere.sRadius;
+
+	double discr = b * b - 4 * a * c;
+
+	if (discr < 0)
 	{
-		return {INFINITY, 0};
+		return INFINITY;
+	}
+	else if (discr == 0)
+	{
+		return -b / (2 * a);
 	}
 
-	Vect3D _a = CO - D * co_dot_d;
+	double t = (-b - sqrt(discr)) / (2 * a);		// Minimize compute only go for 1 root;
 
-	double aSqrd = _a.dot(_a);
-
-	if (aSqrd > sphere.sRadius)
-	{
-		return QuadraticRoots(INFINITY, 0);
-	}
-	double h = sqrt(sphere.sRadius - aSqrd);
-	
-	return QuadraticRoots(h, 0);
+	return t;
 }
 
-Vect3D CanvasToViewport(int x, int y, int width, int height)
+Vect3D CanvasToViewport(const int &x, const int &y, const int &width, const int &height)
 {
 	// for simplicity : Vw = Vh = d = 1    approx 53 fov
 	double aspectRatio = static_cast<double>(width) / height;
@@ -185,26 +186,25 @@ Vect3D CanvasToViewport(int x, int y, int width, int height)
 	return Vect3D(viewportX, viewportY, 1);  // Z=1 for perspective projection
 }
 
-Intersection ClosestIntersection(Vect3D O, Vect3D D, double t_min, double t_max)
+Intersection ClosestIntersection(const Vect3D &O, const Vect3D &D, const double &t_min, const double &t_max)
 {
-	QuadraticRoots res = {};
 	double closest_t = INFINITY;
 	Sphere *closest_sphere = NULL;
-	
+	double d_dot_d = D.dot(D);		// Cache immutable value
 	for (auto &x : scene)
 	{
-		res = IntersectRaySphere(O, D, x, 0);
+		double t = IntersectRaySphere(O, D, x, d_dot_d);
 
-		if (IsInBounds(res.t1, t_min, t_max) && res.t1 < closest_t)
+		if (IsInBounds(t, t_min, t_max) && t < closest_t)
 		{
-			closest_t = res.t1;
+			closest_t = t;
 			closest_sphere = const_cast<Sphere*>(&x);
 		}
 	}
 	return Intersection(closest_sphere, closest_t);
 }
 
-COLORREF TraceRay(Vect3D O, Vect3D D, double t_min, double t_max, int recursionDepth)
+COLORREF TraceRay(const Vect3D &O, const Vect3D &D, const double &t_min, const double &t_max, const int &recursionDepth)
 {
 	Vect3D N = {};
 	Vect3D P = {};
@@ -216,6 +216,9 @@ COLORREF TraceRay(Vect3D O, Vect3D D, double t_min, double t_max, int recursionD
 	{
 		return RGB(0, 0, 0);
 	}
+	
+	P = O + (D * closest_t);
+	N = (P - closest_sphere->center).norm();
 
 	double res = CalcLight(P, N, D.invert(), closest_sphere->specularity);
 	int r = (int)round(GetRValue(closest_sphere->color) * res);
@@ -246,25 +249,25 @@ COLORREF TraceRay(Vect3D O, Vect3D D, double t_min, double t_max, int recursionD
 
 }
 
-void Draw(BYTE** pLpvBits, int width, int height, Camera cam)
+
+void Draw(BYTE** pLpvBits, const int &width, const int &height, Camera &cam)
 {
 	Vect3D D = {};
 	Vect3D N = {};
 	Vect3D P = {};
 	const Vect3D O = { 0,0,0 };
-	double t_min = 0.001;
+	double t_min = 0.0001;
 	double t_max = INFINITY;
-	int recursionDepth = 1;
+	int recursionDepth = 2;
 
 	for (int x = 0; (x < (width)); ++x)
 	{
 		for (int y = 0; (y < (height)); ++y)
 		{
-			D = CanvasToViewport(x, y, width, height);
-			D = cam.ApplyCameraRotation(D, cam);
-
+			D = CanvasToViewport(x, y, width, height).norm();
+			D = cam.ApplyCameraRotation(D, cam).norm();
 			COLORREF color = TraceRay(cam.position, D, t_min, t_max, recursionDepth);
-
+			D = D.norm();
 
 			int offset = (y * width + x) * 4;
 			if (offset >= 0 && offset < width * height * 4 - 4) {

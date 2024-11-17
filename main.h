@@ -9,11 +9,14 @@
  ******************************************************************************/
 #pragma once
 
+
+/*-------------------Defines----------------------*/
+#define _USE_MATH_DEFINES
+
 /*------------------Libraries---------------------*/
 #include "Windows.h"
 #include <chrono>
 #include <vector>
-#include <math.h>
 #include <iostream>
 #include <thread>
 /*----------------My Libraries---------------------*/

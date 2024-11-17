@@ -11,9 +11,10 @@
 
 
 /*-----------------------------Includes------------------------------*/
-#include "Windows.h"
+#define _USE_MATH_DEFINES
+
 #include <cmath>
-#define PI 3.14159265358979323846
+#include "Windows.h"
 
 /*-----------------------------Structs-------------------------------*/
 
@@ -39,7 +40,7 @@ struct Vect3D
 	Vect3D cross(const Vect3D &other) const { return Vect3D(y * other.z - z * other.y, z*other.x - x*other.z, x*other.y - y*other.z); }
 	Vect3D invert() const { return Vect3D(x * -1, y * -1, z * -1); }
 	double len() const { return sqrt(x * x + y * y + z * z); }
-	Vect3D norm() const { return Vect3D(x / len(), y / len(), z / len()); }
+	Vect3D norm() const { return Vect3D(x, y, z) / len(); }
 	double dot(const Vect3D &other) const { return x * other.x + y * other.y + z * other.z; }
 };
 
@@ -56,6 +57,7 @@ struct Sphere
 	int specularity;
 	double reflective;
 	double sRadius;
+
 	Sphere(
 		Vect3D center = {},
 		double radius = 0,
@@ -104,7 +106,7 @@ struct Camera
 
 	double DegreesToRadian(double degrees)
 	{
-		return degrees * PI / 180.0;
+		return degrees * M_PI / 180.0;
 	}
 
 	/**

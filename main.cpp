@@ -104,7 +104,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance,
  */
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	double secondsPerFrame = 33000000;
+	double secondsPerFrame = 3300000;
 	float moveSpeed = 0.1f;
 	float rotationSpeed = 2.0f;
 	width = window.right;
