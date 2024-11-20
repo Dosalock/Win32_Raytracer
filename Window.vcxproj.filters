@@ -35,6 +35,7 @@
     <ClInclude Include="raytrace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="raytrace.cuh" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="raytrace.cu" />

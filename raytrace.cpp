@@ -11,7 +11,7 @@
 
 /*------------------Libraries---------------------*/
 #include "raytrace.h"
-
+#include "raytrace.cuh"
 /*------------Varible initialzation---------------*/
 
 Sphere scene[4] = {};
@@ -260,24 +260,26 @@ void Draw(BYTE** pLpvBits, const int &width, const int &height, Camera &cam)
 	double t_max = INFINITY;
 	int recursionDepth = 2;
 
-	for (int x = 0; (x < (width)); ++x)
-	{
-		for (int y = 0; (y < (height)); ++y)
-		{
-			D = CanvasToViewport(x, y, width, height).norm();
-			D = cam.ApplyCameraRotation(D, cam).norm();
-			COLORREF color = TraceRay(cam.position, D, t_min, t_max, recursionDepth);
-			D = D.norm();
+	//for (int x = 0; (x < (width)); ++x)
+	//{
+	//	for (int y = 0; (y < (height)); ++y)
+	//	{
+	//		D = CanvasToViewport(x, y, width, height).norm();
+	//		D = cam.ApplyCameraRotation(D, cam).norm();
+	//		COLORREF color = TraceRay(cam.position, D, t_min, t_max, recursionDepth);
+	//		D = D.norm();
 
-			int offset = (y * width + x) * 4;
-			if (offset >= 0 && offset < width * height * 4 - 4) {
-				(*pLpvBits)[offset + 0] = (int)GetBValue(color);
-				(*pLpvBits)[offset + 1] = (int)GetGValue(color);
-				(*pLpvBits)[offset + 2] = (int)GetRValue(color);
-				(*pLpvBits)[offset + 3] = 255;
-			}
+	//		int offset = (y * width + x) * 4;
+	//		if (offset >= 0 && offset < width * height * 4 - 4) {
+	//			(*pLpvBits)[offset + 0] = (int)GetBValue(color);
+	//			(*pLpvBits)[offset + 1] = (int)GetGValue(color);
+	//			(*pLpvBits)[offset + 2] = (int)GetRValue(color);
+	//			(*pLpvBits)[offset + 3] = 255;
+	//		}
 
-		}
-	}
+	//	}
+	//}
+	Draw_Caller(pLpvBits);
+
 }
 

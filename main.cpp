@@ -64,7 +64,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance,
 		WS_OVERLAPPEDWINDOW,		// Style of window
 
 		CW_USEDEFAULT, CW_USEDEFAULT,
-		800, 800,
+		1040, 1063,
 
 		NULL,
 		NULL,
