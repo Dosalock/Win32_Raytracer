@@ -24,6 +24,7 @@ int height = 0;
 int width = 0;
 std::chrono::time_point deltaTime = std::chrono::steady_clock().now();
 bool cameraIsMoving = false;
+bool button_pressed = false;
 
 
 /*-------------Function Definitions--------------*/
@@ -109,21 +110,21 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	float rotationSpeed = 2.0f;
 	width = window.right;
 	height = window.bottom;
-
 	auto dEpoch = std::chrono::steady_clock::now();
 	
 	if (cameraIsMoving)
 	{
 		//cam.MoveForward(moveSpeed);
 	}
-	if ((dEpoch - deltaTime).count() > secondsPerFrame)
+
+	if (width > 0 && button_pressed == true)
 	{
 		Draw(&lpvBits, width, height, cam);
 		InvalidateRect(hwnd, NULL, TRUE);
 		//std::this_thread::sleep_for(timestep);
 		deltaTime = clock::now();
+        button_pressed = false;
 	}
-
 	switch (uMsg)
 	{
 		case WM_CREATE:
@@ -205,6 +206,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				case 'E':
 				{
 					cam.yaw += rotationSpeed;
+					break;
+				}
+				case 'M':
+				{
+					button_pressed = true;
 					break;
 				}
 				default:

@@ -19,6 +19,7 @@
 #include <vector>
 #include <iostream>
 #include <thread>
+
 /*----------------My Libraries---------------------*/
 #include "raytrace.h"
 #include "raystructs.h"

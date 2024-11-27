@@ -12,7 +12,7 @@
 
 /*------------------Includes---------------------*/
 #include "raystructs.h"
-#include <cuda.h>
+
 
 /*------------Variable Declarations---------------*/
 
