@@ -23,6 +23,7 @@
 /*----------------My Libraries---------------------*/
 #include "raytrace.h"
 #include "raystructs.h"
+#include "raytrace.cu"
 
 
 /*-------------Function Declarations-------------*/

@@ -252,13 +252,13 @@ COLORREF TraceRay(const Vect3D &O, const Vect3D &D, const double &t_min, const d
 
 void Draw(BYTE** pLpvBits, const int &width, const int &height, Camera &cam)
 {
-	Vect3D D = {};
-	Vect3D N = {};
-	Vect3D P = {};
-	const Vect3D O = { 0,0,0 };
-	double t_min = 0.0001;
-	double t_max = INFINITY;
-	int recursionDepth = 2;
+	//Vect3D D = {};
+	//Vect3D N = {};
+	//Vect3D P = {};
+	//const Vect3D O = { 0,0,0 };
+	//double t_min = 0.0001;
+	//double t_max = INFINITY;
+	//int recursionDepth = 2;
 
 	//for (int x = 0; (x < (width)); ++x)
 	//{

@@ -15,7 +15,8 @@
 
 #include <cmath>
 #include "Windows.h"
-
+#include <cuda_runtime.h>
+#include <cuda_device_runtime_api.h>
 /*-----------------------------Structs-------------------------------*/
 
 /**
@@ -23,26 +24,26 @@
  * @brief Three dimensional vector
  * 
  */
-struct Vect3D 
-{
-	double x; // @brief Represents the vector's position along the X-axis
-	double y; // @brief Represents the vector's position along the Y-axis
-	double z; // @brief Represents the vector's position along the Z-axis
-
-	Vect3D(double x = 0, double y = 0, double z = 0) : x(x), y(y), z(z) { }
-	
-	Vect3D operator-(const Vect3D &other) const { return Vect3D(x - other.x, y - other.y, z - other.z); }
-	Vect3D operator+(const Vect3D &other) const { return Vect3D(x + other.x, y + other.y, z + other.z); }
-	Vect3D operator*(const Vect3D &other) const { return Vect3D(x * other.x, y * other.y, z * other.z); }
-	Vect3D operator/(const Vect3D &other) const { return Vect3D(x / other.x, y / other.y, z / other.z); }
-	Vect3D operator/(const double &other) const { return Vect3D(x / other, y / other, z / other); }
-	Vect3D operator*(const double &other) const { return Vect3D(x * other, y * other, z * other); }
-	Vect3D cross(const Vect3D &other) const { return Vect3D(y * other.z - z * other.y, z*other.x - x*other.z, x*other.y - y*other.z); }
-	Vect3D invert() const { return Vect3D(x * -1, y * -1, z * -1); }
-	double len() const { return sqrt(x * x + y * y + z * z); }
-	Vect3D norm() const { return Vect3D(x, y, z) / len(); }
-	double dot(const Vect3D &other) const { return x * other.x + y * other.y + z * other.z; }
-};
+//struct Vect3D 
+//{
+//	double x; // @brief Represents the vector's position along the X-axis
+//	double y; // @brief Represents the vector's position along the Y-axis
+//	double z; // @brief Represents the vector's position along the Z-axis
+//
+//	Vect3D(double x = 0, double y = 0, double z = 0) : x(x), y(y), z(z) { }
+//	
+//	__host__ __device__ Vect3D operator-(const Vect3D &other) const { return Vect3D(x - other.x, y - other.y, z - other.z); }
+//	__host__ __device__ Vect3D operator+(const Vect3D &other) const { return Vect3D(x + other.x, y + other.y, z + other.z); }
+//	__host__ __device__ Vect3D operator*(const Vect3D &other) const { return Vect3D(x * other.x, y * other.y, z * other.z); }
+//	__host__ __device__ Vect3D operator/(const Vect3D &other) const { return Vect3D(x / other.x, y / other.y, z / other.z); }
+//	__host__ __device__ Vect3D operator/(const double &other) const { return Vect3D(x / other, y / other, z / other); }
+//	__host__ __device__ Vect3D operator*(const double &other) const { return Vect3D(x * other, y * other, z * other); }
+//	__host__ __device__ Vect3D cross(const Vect3D &other) const { return Vect3D(y * other.z - z * other.y, z*other.x - x*other.z, x*other.y - y*other.z); }
+//	__host__ __device__ Vect3D invert() const { return Vect3D(x * -1, y * -1, z * -1); }
+//	__host__ __device__ double len() const { return rsqrtf(x * x + y * y + z * z); }
+//	__host__ __device__ Vect3D norm() const { return Vect3D(x, y, z) / len(); }
+//	__host__ __device__ double dot(const Vect3D &other) const { return x * other.x + y * other.y + z * other.z; }
+//};
 
 
 /**

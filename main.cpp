@@ -134,6 +134,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_DESTROY:
 		{
 			// Cleanup
+			
+			ExitCleanup();
+
 			if (hBitmap) {
 				DeleteObject(hBitmap);
 			}
