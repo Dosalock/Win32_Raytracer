@@ -91,6 +91,9 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <CompileAs>CompileAsCpp</CompileAs>
+      <Optimization>Disabled</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MinimalRebuild>true</MinimalRebuild>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -99,6 +102,12 @@
     </Link>
     <CudaCompile>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CudaRuntime>Shared</CudaRuntime>
+      <FastMath>false</FastMath>
+      <InterleaveSourceInPTX>false</InterleaveSourceInPTX>
+      <CodeGeneration>compute_61,sm_61</CodeGeneration>
+      <Optimization>InheritFromHost</Optimization>
+      <AdditionalOptions>--std c++20 %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -110,6 +119,8 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <CompileAs>CompileAsCpp</CompileAs>
+      <MinimalRebuild>true</MinimalRebuild>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -120,6 +131,12 @@
     </Link>
     <CudaCompile>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CudaRuntime>Shared</CudaRuntime>
+      <FastMath>false</FastMath>
+      <InterleaveSourceInPTX>false</InterleaveSourceInPTX>
+      <CodeGeneration>compute_61,sm_61</CodeGeneration>
+      <Optimization>InheritFromHost</Optimization>
+      <AdditionalOptions>--std c++20 %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -131,6 +148,9 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(CudaToolkitIncludeDir);$(CUDA_DIR)</AdditionalIncludeDirectories>
       <CompileAs>CompileAsCpp</CompileAs>
+      <Optimization>Disabled</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MinimalRebuild>true</MinimalRebuild>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -139,6 +159,12 @@
     </Link>
     <CudaCompile>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CudaRuntime>Shared</CudaRuntime>
+      <FastMath>false</FastMath>
+      <InterleaveSourceInPTX>false</InterleaveSourceInPTX>
+      <CodeGeneration>compute_61,sm_61</CodeGeneration>
+      <Optimization>InheritFromHost</Optimization>
+      <AdditionalOptions>--std c++20 %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -150,6 +176,8 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <CompileAs>CompileAsCpp</CompileAs>
+      <MinimalRebuild>true</MinimalRebuild>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -160,6 +188,12 @@
     </Link>
     <CudaCompile>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <CudaRuntime>Shared</CudaRuntime>
+      <FastMath>false</FastMath>
+      <InterleaveSourceInPTX>false</InterleaveSourceInPTX>
+      <CodeGeneration>compute_61,sm_61</CodeGeneration>
+      <Optimization>InheritFromHost</Optimization>
+      <AdditionalOptions>--std c++20 %(AdditionalOptions)</AdditionalOptions>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>

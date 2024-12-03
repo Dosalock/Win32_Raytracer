@@ -16,13 +16,9 @@
 /*------------------Libraries---------------------*/
 #include "Windows.h"
 #include <chrono>
-#include <vector>
-#include <iostream>
-#include <thread>
-
 /*----------------My Libraries---------------------*/
 #include "raytrace.h"
-#include "raystructs.h"
+//#include "raystructs.h"
 #include "raytrace.cu"
 
 
