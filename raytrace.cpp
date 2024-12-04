@@ -14,8 +14,8 @@
 #include "raytrace.cuh"
 /*------------Varible initialzation---------------*/
 
-//Sphere scene[4] = {};
-//Light lights[3] = {};
+Sphere scene[4] = {};
+Light lights[3] = {};
 //
 ///*------------Funcition Defenitions---------------*/
 //
@@ -279,7 +279,7 @@ void Draw(BYTE** pLpvBits, const int &width, const int &height, Camera &cam)
 
 	//	}
 	//}
-	Draw_Caller(pLpvBits);
+	Draw_Caller(pLpvBits, cam, scene, lights);
 
 }
 

@@ -22,7 +22,6 @@ RECT window = {};
 Camera cam = {};
 int height = 0;
 int width = 0;
-std::chrono::time_point deltaTime = std::chrono::steady_clock().now();
 bool cameraIsMoving = false;
 bool button_pressed = false;
 
@@ -110,7 +109,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	float rotationSpeed = 2.0f;
 	width = window.right;
 	height = window.bottom;
-	auto dEpoch = std::chrono::steady_clock::now();
 	
 	if (cameraIsMoving)
 	{
@@ -122,7 +120,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		Draw(&lpvBits, width, height, cam);
 		InvalidateRect(hwnd, NULL, TRUE);
 		//std::this_thread::sleep_for(timestep);
-		deltaTime = clock::now();
         button_pressed = false;
 	}
 	switch (uMsg)
@@ -183,32 +180,32 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 				case 'W':
 				{
-					cam.MoveForward(moveSpeed);
+					//cam.MoveForward(moveSpeed);
 					break;
 				}
 				case 'A':
 				{
-					cam.MoveSideways(moveSpeed);
+					//cam.MoveSideways(moveSpeed);
 					break;
 				}
 				case 'S':
 				{
-					cam.MoveForward(-moveSpeed);
+					//cam.MoveForward(-moveSpeed);
 					break;
 				}
 				case 'D':
 				{
-					cam.MoveSideways(-moveSpeed);
+					//cam.MoveSideways(-moveSpeed);
 					break;
 				}
 				case 'Q':
 				{
-					cam.yaw -= rotationSpeed;
+					//cam.yaw -= rotationSpeed;
 					break;
 				}
 				case 'E':
 				{
-					cam.yaw += rotationSpeed;
+					//cam.yaw += rotationSpeed;
 					break;
 				}
 				case 'M':

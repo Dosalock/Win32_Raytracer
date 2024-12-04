@@ -7,13 +7,72 @@
 #include <cuda_runtime.h>
 #include <device_launch_parameters.h>
 
+struct Camera
+{
+    float4 position;
+    float  yaw;
+    float  pitch;
+    float  roll;
+};
+
+struct Sphere
+{
+    float4   center;
+    float    radius;
+    COLORREF color;
+    int      specularity;
+    float    reflective;
+    float    sRadius;
+
+    __device__ Sphere ( float4   center      = { },
+                                 float    radius      = 0,
+                                 COLORREF color       = RGB( 0, 0, 0 ),
+                                 int      specularity = 0,
+                                 float    reflective  = 0 ) :
+        center( center ),
+        radius( radius ),
+        color( color ),
+        specularity( specularity ),
+        reflective( reflective ),
+        sRadius( radius * radius )
+    {
+    }
+};
+
+struct Light
+{
+    enum LightType
+    {
+        directional,
+        point,
+        ambient
+    } type;
+
+    float  intensity;
+    float4 pos;
+};
+
+struct intersection
+{
+    Sphere *sphere;
+    float   point;
+
+    __shared__ intersection ( Sphere *sphere, float point )
+    {
+        this->sphere = sphere;
+        this->point  = point;
+    }
+};
+
 struct float3x3
 {
     float4 m00_m01_m02;
     float4 m10_m11_m12;
     float4 m20_m21_m22;
 
-    float3x3 ( float4 m00_m01_m02, float4 m10_m11_m12, float4 m20_m21_m22 )
+    __device__ float3x3 ( float4 m00_m01_m02,
+                                   float4 m10_m11_m12,
+                                   float4 m20_m21_m22 )
     {
         this->m00_m01_m02 = m00_m01_m02;
         this->m10_m11_m12 = m10_m11_m12;

@@ -2,10 +2,9 @@
 
 #define __CUDACC__
 
-#include <cuda.h>
+
 #include <cuda_fp16.h>
 #include <cuda_runtime.h>
-#include <device_launch_parameters.h>
 
 struct float3x3 {
   float4 m00_m01_m02, m10_m11_m12, m20_m21_m22;

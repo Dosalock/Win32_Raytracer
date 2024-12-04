@@ -105,10 +105,10 @@ void Draw(BYTE **pLpvBits, const int &width, const int &height, Camera &cam);
 
 /*------------Template Declarations---------------*/
 
-template <typename T>
-concept Scalar = std::is_scalar_v<T>;
-
-template <Scalar T>
-bool IsInBounds(const T& value, const T& low, const T& high) {
-	return !(value < low) && (value < high);
-}
+//template <typename T>
+//concept Scalar = std::is_scalar_v<T>;
+//
+//template <Scalar T>
+//bool IsInBounds(const T& value, const T& low, const T& high) {
+//	return !(value < low) && (value < high);
+//}
