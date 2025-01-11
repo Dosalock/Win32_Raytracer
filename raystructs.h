@@ -217,16 +217,17 @@ struct Camera
 };
 /**
  * @struct Intersection raystruct.h
- * @brief Pointer to sphere and number T, signifies an intersection between a sphere and a vector */
+ * @brief Pointer to sphere and number T, signifies an intersection between a sphere and a vector 
+ */
 struct Intersection 
 {
 	Sphere *closest_sphere;
 	double closest_t;
 
 	Intersection(Sphere *closest_sphere = NULL, 
-				 double closest_t = INFINITY)
-		         :
-		         closest_sphere(closest_sphere),
-		         closest_t(closest_t) {}
+                     double closest_t = INFINITY)
+		     :
+		     closest_sphere(closest_sphere),
+		     closest_t(closest_t) {}
 };
 
