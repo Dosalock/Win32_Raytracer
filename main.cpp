@@ -9,24 +9,66 @@
  */
 
 
- /*------------------Includes---------------------*/
+/*------------------Includes---------------------*/
 #include "main.h"
-
+#include <unordered_map>
 /*------------Varible initialzation--------------*/
 #define clock std::chrono::high_resolution_clock
 
-HBITMAP hBitmap = NULL;
-HDC hdcWindow = NULL;
-BYTE* lpvBits = NULL;
-RECT window = {};
-Camera cam = {};
-int height = 0;
-int width = 0;
-std::chrono::time_point deltaTime = std::chrono::steady_clock().now();
-bool cameraIsMoving = false;
-
+HBITMAP hBitmap                     = NULL;
+HDC hdcWindow                       = NULL;
+BYTE* lpvBits                       = NULL;
+RECT window                         = { };
+Camera cam                          = { };
+int height                          = 0;
+int width                           = 0;
+std::chrono::time_point clock_start = std::chrono::steady_clock( ).now( );
+bool cameraIsMoving                 = false;
+bool drawing_frame                  = false;
+float delta_time                    = 0.0f;
+float moveSpeed                     = 0.1f;
+float rotationSpeed                 = 2.0f;
+long long secondsPerFrame           = 33'000'000;
+Sphere scene[4]                     = { };
+Light lights[3]                     = { };
+std::unordered_map<int, bool> keyStates;
 
 /*-------------Function Definitions--------------*/
+
+void RenderFrame ( HWND hWnd )
+{
+	Draw( &lpvBits, width, height, cam, scene, lights);
+	InvalidateRect( hWnd, NULL, TRUE );
+}
+
+void GameUpdate ( )
+{
+	// Camera updates should happen here
+	if ( keyStates['W'] )
+	{
+		cam.MoveForward( moveSpeed );
+	}
+	if ( keyStates['A'] )
+	{
+		cam.MoveSideways( moveSpeed );
+	}
+	if ( keyStates['S'] )
+	{
+		cam.MoveForward( -moveSpeed );
+	}
+	if ( keyStates['D'] )
+	{
+		cam.MoveSideways( -moveSpeed );
+	}
+	if ( keyStates['Q'] )
+	{
+		cam.yaw -= rotationSpeed;
+	}
+	if ( keyStates['E'] )
+	{
+		cam.yaw += rotationSpeed;
+	}
+}
 
 /**
  * @brief Application entrypoint.
@@ -39,57 +81,80 @@ bool cameraIsMoving = false;
  * @param nCmdShow Controls how the window is to be shown
  * @return
  */
-int WINAPI WinMain(_In_ HINSTANCE hInstance,
-	_In_opt_ HINSTANCE hPrevInstance,
-	_In_ LPSTR lpCmdLine,
-	_In_ int nCmdShow) {
-
-	//Register window class
+int WINAPI WinMain ( _In_ HINSTANCE hInstance,
+					 _In_opt_ HINSTANCE hPrevInstance,
+					 _In_ LPSTR lpCmdLine,
+					 _In_ int nCmdShow )
+{
+	// Register window class
 	const wchar_t CLASS_NAME[] = L"Window";
 
 
-	WNDCLASS WindowClass = {};
+	WNDCLASS WindowClass = { };
 
-	WindowClass.lpfnWndProc = WindowProc;
-	WindowClass.hInstance = hInstance;
+	WindowClass.lpfnWndProc   = WindowProc;
+	WindowClass.hInstance     = hInstance;
 	WindowClass.lpszClassName = CLASS_NAME;
 
-	RegisterClass(&WindowClass);
+	RegisterClass( &WindowClass );
 
 	// Create window
-	HWND hwnd = CreateWindowEx(
-		0,
-		CLASS_NAME,
-		L"Win32 Raytracer",
-		WS_OVERLAPPEDWINDOW,		// Style of window
+	HWND hwnd = CreateWindowEx( 0,
+								CLASS_NAME,
+								L"Win32 Raytracer",
+								WS_OVERLAPPEDWINDOW, // Style of window
 
-		CW_USEDEFAULT, CW_USEDEFAULT,
-		250, 250,
+								CW_USEDEFAULT,
+								CW_USEDEFAULT,
+								512,
+								512,
 
-		NULL,
-		NULL,
-		hInstance,
-		NULL
-	);
+								NULL,
+								NULL,
+								hInstance,
+								NULL );
 
-	if (hwnd == NULL)
+	if ( hwnd == NULL )
 	{
 		return 0;
 	}
-
-	GetClientRect(hwnd, &window);
-	Init(&lpvBits, &window, &hBitmap);
-	ShowWindow(hwnd, nCmdShow);
-	UpdateWindow(hwnd);
+	CreateScene( scene, lights );
+	GetClientRect( hwnd, &window );
+	Init( &lpvBits, &window, &hBitmap );
+	ShowWindow( hwnd, nCmdShow );
+	UpdateWindow( hwnd );
 
 	MSG msg = { };
 
-	while (GetMessage(&msg, NULL, 0, 0) > 0)
-	{
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
-	}
+	auto dEpoch      = std::chrono::steady_clock::now( );
+	auto cached_time = std::chrono::steady_clock::now( );
 
+	while ( msg.message != WM_QUIT )
+	{
+		if ( PeekMessage( &msg, NULL, 0, 0, PM_REMOVE ) )
+		{
+			TranslateMessage( &msg );
+			DispatchMessage( &msg );
+		}
+		else
+		{
+			// game loop
+			auto now = std::chrono::steady_clock::now( );
+			if ( ( now - clock_start ).count( ) >= secondsPerFrame )
+			{
+				clock_start = now;
+				delta_time  = 1.0f; // Use this to scale camera speed
+				GameUpdate( );
+				drawing_frame = true;
+			}
+			if ( drawing_frame )
+			{
+				RenderFrame( hwnd );
+				drawing_frame = false;
+			}
+		}
+	}
+	UnregisterClass( L"Win32 Raytracer", WindowClass.hInstance );
 	return 0;
 }
 
@@ -98,33 +163,20 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance,
  *
  * @param hwnd handle to the window
  * @param uMsg message code; e.g. WM_KEYDOWN
- * @param wParam data pertaining to message e.g. which key pressen on WM_KEYDOWN
+ * @param wParam data pertaining to message e.g. which key pressen on
+ * WM_KEYDOWN
  * @param lParam data pertaining to message if neeeded
  * @return
  */
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WindowProc ( HWND hwnd,
+							  UINT uMsg,
+							  WPARAM wParam,
+							  LPARAM lParam )
 {
-	double secondsPerFrame = 33000000;
-	float moveSpeed = 0.1f;
-	float rotationSpeed = 2.0f;
-	width = window.right;
+	width  = window.right;
 	height = window.bottom;
 
-	auto dEpoch = std::chrono::steady_clock::now();
-	
-	if (cameraIsMoving)
-	{
-		//cam.MoveForward(moveSpeed);
-	}
-	if ((dEpoch - deltaTime).count() > secondsPerFrame)
-	{
-		Draw(&lpvBits, width, height, cam);
-		InvalidateRect(hwnd, NULL, TRUE);
-		//std::this_thread::sleep_for(timestep);
-		deltaTime = clock::now();
-	}
-
-	switch (uMsg)
+	switch ( uMsg )
 	{
 		case WM_CREATE:
 		{
@@ -133,10 +185,11 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_DESTROY:
 		{
 			// Cleanup
-			if (hBitmap) {
-				DeleteObject(hBitmap);
+			if ( hBitmap )
+			{
+				DeleteObject( hBitmap );
 			}
-			PostQuitMessage(0);
+			PostQuitMessage( 0 );
 
 			break;
 		}
@@ -145,22 +198,23 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 			PAINTSTRUCT ps;
 
-			GetClientRect(hwnd, &window); // Use client area dimensions
-			width = window.right;
-			height = window.bottom;
-			HDC hdc = BeginPaint(hwnd, &ps);
+			GetClientRect( hwnd, &window ); // Use client area dimensions
 
-			HDC hdcMem = CreateCompatibleDC(hdc);
-			HGDIOBJ oldBitmap = SelectObject(hdcMem, hBitmap);
+			width   = window.right;
+			height  = window.bottom;
+			HDC hdc = BeginPaint( hwnd, &ps );
 
-			BitBlt(hdc, 0, 0, width, height, hdcMem, 0, 0, SRCCOPY);
+			HDC hdcMem        = CreateCompatibleDC( hdc );
+			HGDIOBJ oldBitmap = SelectObject( hdcMem, hBitmap );
 
-			SelectObject(hdcMem, oldBitmap);
-			DeleteDC(hdcMem);
+			BitBlt( hdc, 0, 0, width, height, hdcMem, 0, 0, SRCCOPY );
+
+			SelectObject( hdcMem, oldBitmap );
+			DeleteDC( hdcMem );
 
 			// All painting occurs here, between BeginPaint and EndPaint.
 
-			EndPaint(hwnd, &ps);
+			EndPaint( hwnd, &ps );
 
 			break;
 		}
@@ -170,56 +224,18 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		case WM_KEYUP:
 		{
-			cameraIsMoving = false;
+			keyStates[wParam] = false;
 			break;
 		}
 		case WM_KEYDOWN:
 		{
-			switch (wParam)
-			{
-				case 'W':
-				{
-					cam.MoveForward(moveSpeed);
-					break;
-				}
-				case 'A':
-				{
-					cam.MoveSideways(moveSpeed);
-					break;
-				}
-				case 'S':
-				{
-					cam.MoveForward(-moveSpeed);
-					break;
-				}
-				case 'D':
-				{
-					cam.MoveSideways(-moveSpeed);
-					break;
-				}
-				case 'Q':
-				{
-					cam.yaw -= rotationSpeed;
-					break;
-				}
-				case 'E':
-				{
-					cam.yaw += rotationSpeed;
-					break;
-				}
-				default:
-					break;
-			}
+			keyStates[wParam] = true;
 			break;
 		}
 		default:
 		{
-			return DefWindowProc(hwnd, uMsg, wParam, lParam);
+			return DefWindowProc( hwnd, uMsg, wParam, lParam );
 		}
 	}
-	return DefWindowProc(hwnd, uMsg, wParam, lParam);
+	return DefWindowProc( hwnd, uMsg, wParam, lParam );
 }
-
-
-
-

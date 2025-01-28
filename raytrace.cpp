@@ -14,277 +14,326 @@
 
 /*------------Varible initialzation---------------*/
 
-Sphere scene[4] = {};
-Light lights[3] = {};
+
 
 /*------------Funcition Defenitions---------------*/
 
-Vect3D ReflectRay(Vect3D R, Vect3D N)
+/**
+ * @brief Checks if a root is within limits and is a better match than
+ * previously cached
+ * @param root - Root to check
+ * @param t_min - Minimum acceptable value for root
+ * @param t_max - Maximum acceptable value for root
+ * @param closest_t - Current best root
+ * @return
+ */
+bool IsBetterRoot ( double root, double t_min, double t_max, double closest_t )
 {
-	return ((N*(N.dot(R))) * 2) - R;
+	return IsInBounds( root, t_min, t_max ) && root < closest_t;
 }
 
-void CreateScene()
+Vect3D ReflectRay ( Vect3D R, Vect3D N )
 {
-	scene[0].center = Vect3D(0, -1, 3);
-	scene[0].radius = 1;
-	scene[0].color = RGB(255, 0, 0);
+	return ( ( N * ( N.dot( R ) ) ) * 2 ) - R;
+}
+
+void CreateScene ( Sphere *scene, Light *lights )
+{
+	scene[0].center      = Vect3D( 0, -1, 3 );
+	scene[0].radius      = 1;
+	scene[0].color       = RGB( 255, 0, 0 );
 	scene[0].specularity = 500;
-	scene[0].reflective = 0.2;
-	scene[0].sRadius = scene[0].radius * scene[0].radius;
+	scene[0].reflective  = 0.2;
+	scene[0].raidus_squared     = scene[0].radius * scene[0].radius;
 
-	scene[1].center = Vect3D(2, 0, 4);
-	scene[1].radius = 1;
-	scene[1].color = RGB(0, 0, 255);
+	scene[1].center      = Vect3D( 2, 0, 4 );
+	scene[1].radius      = 1;
+	scene[1].color       = RGB( 0, 0, 255 );
 	scene[1].specularity = 500;
-	scene[1].reflective = 0.3;
-	scene[1].sRadius = scene[1].radius * scene[1].radius;
+	scene[1].reflective  = 0.3;
+	scene[1].raidus_squared     = scene[1].radius * scene[1].radius;
 
-	scene[2].center = Vect3D(-2, 0, 4);
-	scene[2].radius = 1;
-	scene[2].color = RGB(0, 255, 0);
+	scene[2].center      = Vect3D( -2, 0, 4 );
+	scene[2].radius      = 1;
+	scene[2].color       = RGB( 0, 255, 0 );
 	scene[2].specularity = 10;
-	scene[2].reflective = 0.4;
-	scene[2].sRadius = scene[2].radius * scene[2].radius;
+	scene[2].reflective  = 0.4;
+	scene[2].raidus_squared     = scene[2].radius * scene[2].radius;
 
-	scene[3].center = Vect3D(0, -5001, 0);
-	scene[3].radius = 5000;
-	scene[3].color = RGB(255, 255, 0);
+	scene[3].center      = Vect3D( 0, -5001, 0 );
+	scene[3].radius      = 5000;
+	scene[3].color       = RGB( 255, 255, 255 );
 	scene[3].specularity = 1000;
-	scene[3].reflective = 0.5;
-	scene[3].sRadius = scene[3].radius * scene[3].radius;
+	scene[3].reflective  = 0.5;
+	scene[3].raidus_squared     = scene[3].radius * scene[3].radius;
 
-	lights[0].type = lights->AMBIENT;
+	lights[0].type      = lights->AMBIENT;
 	lights[0].intensity = 0.2;
-	//lights[0].pos = { 0,0,0 }; //prettysure this is useless
+	// lights[0].pos = { 0,0,0 }; //prettysure this is useless
 
-	lights[1].type = lights->POINT;
+	lights[1].type      = lights->POINT;
 	lights[1].intensity = 0.6;
-	lights[1].pos = { 2, 1, 0 };
+	lights[1].pos       = { 2, 1, 0 };
 
-	lights[2].type = lights->DIRECTIONAL;
+	lights[2].type      = lights->DIRECTIONAL;
 	lights[2].intensity = 0.2;
-	lights[2].pos = { 1, 4, 4 };
+	lights[2].pos       = { 1, 4, 4 };
 }
 
-double CalcLight(Vect3D P, Vect3D N, Vect3D V, int s)
+double CalcLight ( Vect3D P, Vect3D N, Vect3D V, int s, Sphere* scene, Light *lights)
 {
 	double intensity = 0.0;
-	double t_max = 0;
-	Vect3D L = {};
-	Vect3D R = {};
-	for (int i = 0; i < sizeof(lights) / sizeof(Light); i++)
+	double t_max     = 0;
+	Vect3D L         = { };
+	Vect3D R         = { };
+	for ( int i = 0; i < 4; i++ )
 	{
-		if (lights[i].type == lights->AMBIENT)
+		if ( lights[i].type == lights->AMBIENT )
 		{
 			intensity += lights[i].intensity;
 		}
 		else
 		{
-			if (lights[i].type == lights->POINT)
+			if ( lights[i].type == lights->POINT )
 			{
-				L = (lights[i].pos - P);
+				L     = ( lights[i].pos - P );
 				t_max = 1;
 			}
 			else
 			{
-				L = lights[i].pos;
+				L     = lights[i].pos;
 				t_max = INFINITY;
 			}
-
-			auto [shadow_sphere, shadow_t] = ClosestIntersection(P, L, 0.001, t_max);
-			if (shadow_sphere != NULL)
+			double t_min = 0.0001f;
+			auto [shadow_sphere, shadow_t] =
+				ClosestIntersection( P, L, t_min, t_max, scene);
+			if ( shadow_sphere != NULL )
 			{
 				continue;
 			}
 
-			double n_dot_l = N.dot(L);
-			if (n_dot_l > 0)
+			double n_dot_l = N.dot( L );
+			if ( n_dot_l > 0 )
 			{
-				intensity += lights[i].intensity * n_dot_l / (N.len() * L.len());
+				intensity +=
+					lights[i].intensity * n_dot_l / ( N.len( ) * L.len( ) );
 			}
 
-			if (s != -1)
+			if ( s != -1 )
 			{
-				R = ReflectRay(L, N);
-				double r_dot_v = R.dot(V);
+				R = ReflectRay( L, N );
 
-				if (r_dot_v > 0)
+				double r_dot_v = R.dot( V );
+
+
+				if ( r_dot_v > 0 )
 				{
-					intensity += lights[i].intensity * pow(r_dot_v/(R.len() * (V.len())), s);
+					intensity +=
+						lights[i].intensity
+						* pow( r_dot_v / ( R.len( ) * ( V.len( ) ) ), s );
 				}
-
 			}
 		}
 	}
 	return intensity;
 }
 
-void Init(BYTE** pLpvBits, RECT* window, HBITMAP* pHBitmap)
+void Init ( BYTE **pLpvBits, RECT *window, HBITMAP *pHBitmap )
 {
-	CreateScene();
-	int width = (*window).right;
-	int height = (*window).bottom;
+	
+	int width  = ( *window ).right;
+	int height = ( *window ).bottom;
 
-	BITMAPINFO bmi = {};
-	bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-	bmi.bmiHeader.biWidth = width;
-	bmi.bmiHeader.biHeight = -height; // Negative to have a top-down DIB
-	bmi.bmiHeader.biPlanes = 1;
-	bmi.bmiHeader.biBitCount = 32;
+	BITMAPINFO bmi              = { };
+	bmi.bmiHeader.biSize        = sizeof( BITMAPINFOHEADER );
+	bmi.bmiHeader.biWidth       = width;
+	bmi.bmiHeader.biHeight      = -height; // Negative to have a top-down DIB
+	bmi.bmiHeader.biPlanes      = 1;
+	bmi.bmiHeader.biBitCount    = 32;
 	bmi.bmiHeader.biCompression = BI_RGB;
 
 	// Create the DIB section and obtain a pointer to the pixel buffer
-	*pHBitmap = CreateDIBSection(NULL, &bmi, DIB_RGB_COLORS, (void**)&(*pLpvBits), NULL, 0);
+	*pHBitmap = CreateDIBSection( NULL,
+								  &bmi,
+								  DIB_RGB_COLORS,
+								  ( void ** )&( *pLpvBits ),
+								  NULL,
+								  0 );
 
-	if (!(*pLpvBits) || !(*pHBitmap)) {
-		MessageBox(NULL, L"Could not allocate memory for bitmap", L"Error", MB_OK | MB_ICONERROR);
-		exit(1);
+	if ( !( *pLpvBits ) || !( *pHBitmap ) )
+	{
+		MessageBox( NULL,
+					L"Could not allocate memory for bitmap",
+					L"Error",
+					MB_OK | MB_ICONERROR );
+		exit( 1 );
 	}
 
 	// Initialize all pixels to black
-	memset(*pLpvBits, 0, width * height * 4);
-
-
+	memset( *pLpvBits, 0, width * height * 4 );
 }
 
-QuadraticAnswer IntersectRaySphere(Vect3D O, Vect3D D, Sphere sphere, double dDot)
+float
+	IntersectRaySphere ( Vect3D O, Vect3D D, Sphere sphere, double dDot )
 {
-	//int r = sphere.radius // is always 1
-	double t1, t2;
+	Vect3D CO = O - sphere.center;
+	float a   = D.dot( D );
+	float b   = 2 * CO.dot( D );
+	float c   = CO.dot( CO ) - sphere.raidus_squared;
 
-	Vect3D CO = {};
-	CO = O - sphere.center;	
+	float discr = b * b - 4 * a * c;
 
-	double a = dDot;
-	double b = 2 * CO.dot(D);
-	double c = CO.dot(CO) - sphere.sRadius;
-
-	double discr = b * b - 4 * a * c;
-
-	if (discr < 0)
+	if ( discr < 0 )
 	{
-		return QuadraticAnswer(INFINITY, INFINITY);
+		return INFINITY;
+	}
+	else if ( discr == 0 )
+	{
+		return -b / ( 2 * a );
 	}
 
-	t1 = (-b + sqrt(discr)) / (2 * a);
-	t2 = (-b - sqrt(discr)) / (2 * a);
-	return QuadraticAnswer(t1, t2);
+	float t = ( -b - sqrtf( discr ) )
+			  / ( 2 * a ); // Minimize compute only go for 1 root;
+
+	return t;
 }
 
-Vect3D CanvasToViewport(int x, int y, int width, int height)
+Vect3D CanvasToViewport ( int x, int y, int width, int height )
 {
 	// for simplicity : Vw = Vh = d = 1    approx 53 fov
-	double aspectRatio = static_cast<double>(width) / height;
+	double aspect_ratio = static_cast<double>( width ) / height;
 
 	// Map x and y to the viewport, adjusting by aspect ratio
-	double fovMod = 1;
-	double viewportX = (x - width / 2.0) * ((1.0 * fovMod) / width) * aspectRatio;
-	double viewportY = -(y - height / 2.0) * ((1.0 * fovMod) / height); // Flip Y to match 3D space orientation
+	double fov_mod = 1;
+	double viewport_x =
+		( x - width / 2.0 ) * ( ( 1.0 * fov_mod ) / width ) * aspect_ratio;
+	double viewport_y = -( y - height / 2.0 )
+						* ( ( 1.0 * fov_mod )
+							/ height ); // Flip Y to match 3D space orientation
 
-	return Vect3D(viewportX, viewportY, 1);  // Z=1 for perspective projection
+	return Vect3D( viewport_x,
+				   viewport_y,
+				   1 ); // Z=1 for perspective projection
 }
 
-Intersection ClosestIntersection(Vect3D O, Vect3D D, double t_min, double t_max)
+Intersection
+	ClosestIntersection ( Vect3D O, Vect3D D, double t_min, double t_max, Sphere *scene )
 {
-	double closest_t = INFINITY;
+	float closest_t        = INFINITY;
 	Sphere *closest_sphere = NULL;
-	double dDot = D.dot(D);
-	for (auto &x : scene)
+	float d_dot_d          = D.dot( D ); // Cache immutable value
+
+
+	for ( int sphere = 0; sphere < 4; sphere++ )
 	{
-		QuadraticAnswer res = IntersectRaySphere(O, D, x, dDot);
-	
-		if (t_min  < res.t1 && t_max > res.t1 && res.t1 < closest_t)
+		float t = IntersectRaySphere( O, D, scene[sphere], d_dot_d );
+
+		if ( IsBetterRoot( t, t_min, t_max, closest_t ) )
 		{
-			closest_t = res.t1;
-			closest_sphere = const_cast<Sphere*>(&x);
-		}
-		if (t_min  < res.t2 && t_max > res.t2 && res.t2 < closest_t)
-		{
-			closest_t = res.t2;
-			closest_sphere = const_cast<Sphere*>(&x);
+			closest_t      = t;
+			closest_sphere = const_cast<Sphere *>( &scene[sphere] );
 		}
 	}
-	return Intersection(closest_sphere, closest_t);
+	return Intersection( closest_sphere, closest_t );
 }
 
-COLORREF TraceRay(Vect3D O, Vect3D D, double t_min, double t_max, int recursionDepth)
+COLORREF TraceRay ( Vect3D O,
+					Vect3D D,
+					float t_min,
+					float t_max,
+					int recursionDepth,
+					Sphere *scene,
+					Light *lights )
 {
-	Vect3D N = {};
-	Vect3D P = {};
-	Vect3D R = {};
+	Vect3D N = { };
+	Vect3D P = { };
+	Vect3D R = { };
 
-	auto [closest_sphere, closest_t] = ClosestIntersection(O, D, t_min, t_max);
-
-	if (closest_sphere == NULL)
+	Intersection intersec =
+		ClosestIntersection( O, D, t_min, t_max, scene );
+	Sphere *closest_sphere = intersec.sphere;
+	float closest_t        = intersec.point;
+	if ( closest_sphere == NULL )
 	{
-		return RGB(0, 0, 0);
+		return RGB( 0, 0, 0 );
 	}
 
+	P = O + ( D * closest_t );
+	N = ( P - closest_sphere->center );
+	N.norm( );
 
-	P = O + (D * closest_t);
-	N = (P - closest_sphere->center);
-	N = N / N.len(); 
+	float res = CalcLight( P,
+						   N,
+						   D.invert( ),
+						   closest_sphere->specularity,
+						   scene,
+						   lights );
+	int r     = ( int )round( GetRValue( closest_sphere->color ) * res );
+	int g     = ( int )round( GetGValue( closest_sphere->color ) * res );
+	int b     = ( int )round( GetBValue( closest_sphere->color ) * res );
 
+	float refl = closest_sphere->reflective;
 
-	double res = CalcLight(P, N, D.invert(), closest_sphere->specularity);
-	int r = (int)round(GetRValue(closest_sphere->color) * res);
-	int g = (int)round(GetGValue(closest_sphere->color) * res);
-	int b = (int)round(GetBValue(closest_sphere->color) * res);
-
-	double refl = closest_sphere->reflective;
- 
-	if (recursionDepth <= 0 || refl <= 0) 
+	if ( recursionDepth <= 0 || refl <= 0 )
 	{
-		return RGB(max(0, min(255, r)),
-				   max(0, min(255, g)),
-				   max(0, min(255, b)));
+		return RGB( max( 0, min( 255, r ) ),
+					max( 0, min( 255, g ) ),
+					max( 0, min( 255, b ) ) );
 	}
 
+	R = ReflectRay( D.invert( ), N );
+	COLORREF reflectedColor = TraceRay( P,
+										R,
+										t_min,
+										t_max,
+										recursionDepth - 1,
+										scene,
+										lights );
 
-	R = ReflectRay(D.invert(), N);
-	COLORREF reflectedColor = TraceRay(P, R, t_min, t_max, recursionDepth - 1);
+	int reflected_r = ( int )roundf( GetRValue( reflectedColor ) ) * refl;
+	int reflected_g = ( int )roundf( GetGValue( reflectedColor ) ) * refl;
+	int reflected_b = ( int )roundf( GetBValue( reflectedColor ) ) * refl;
 
-	int reflected_r = (int)round(GetRValue(reflectedColor)) * refl;
-	int reflected_g = (int)round(GetGValue(reflectedColor)) * refl;
-	int reflected_b = (int)round(GetBValue(reflectedColor)) * refl;
 
-	
-	return RGB(max(0, min(255, r * (1 - refl) + reflected_r)),
-			   max(0, min(255, g * (1 - refl) + reflected_g)),
-			   max(0, min(255, b * (1 - refl) + reflected_b)));
-
+	return RGB(
+		max( 0,
+			 min( 255, static_cast<int>( r * ( 1 - refl ) + reflected_r ) ) ),
+		max( 0,
+			 min( 255, static_cast<int>( g * ( 1 - refl ) + reflected_g ) ) ),
+		max( 0,
+			 min( 255, static_cast<int>( b * ( 1 - refl ) + reflected_b ) ) ) );
 }
 
-void Draw(BYTE** pLpvBits, int width, int height, Camera cam)
+void Draw ( BYTE **pLpvBits, int width, int height, Camera cam, Sphere *scene, Light *lights)
 {
-	Vect3D D = {};
-	Vect3D N = {};
-	Vect3D P = {};
-	const Vect3D O = { 0,0,0 };
-	double t_min = 0.001;
-	double t_max = INFINITY;
-	int recursionDepth = 2;
+	Vect3D D           = { };
+	Vect3D N           = { };
+	Vect3D P           = { };
+	Vect3D O     = { 0, 0, 0 };
+	float t_min       = 0.001;
+	float t_max       = INFINITY;
+	int recursionDepth = 1;
 
-	for (int x = 0; (x < (width)); ++x)
+	for ( int x = 0; ( x < ( width ) ); ++x )
 	{
-		for (int y = 0; (y < (height)); ++y)
+		for ( int y = 0; ( y < ( height ) ); ++y )
 		{
-			D = CanvasToViewport(x, y, width, height);
-			D = cam.ApplyCameraRotation(D, cam);
+			D = CanvasToViewport( x, y, width, height );
+			D = cam.ApplyCameraRotation( D, cam );
 
-			COLORREF color = TraceRay(cam.position, D, t_min, t_max, recursionDepth);
+			COLORREF color =
+				TraceRay( cam.position, D, t_min, t_max, recursionDepth, scene, lights );
 
 
-			int offset = (y * width + x) * 4;
-			if (offset >= 0 && offset < width * height * 4 - 4) {
-				(*pLpvBits)[offset + 0] = (int)GetBValue(color);
-				(*pLpvBits)[offset + 1] = (int)GetGValue(color);
-				(*pLpvBits)[offset + 2] = (int)GetRValue(color);
-				(*pLpvBits)[offset + 3] = 255;
+			D = D.norm();
+			int offset = ( y * width + x ) * 4;
+			if ( offset >= 0 && offset < width * height * 4 - 4 )
+			{
+				( *pLpvBits )[offset + 0] = ( int )GetBValue( color );
+				( *pLpvBits )[offset + 1] = ( int )GetGValue( color );
+				( *pLpvBits )[offset + 2] = ( int )GetRValue( color );
+				( *pLpvBits )[offset + 3] = 255;
 			}
-
 		}
 	}
 }
-
