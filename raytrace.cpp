@@ -27,7 +27,7 @@
  * @param closest_t - Current best root
  * @return
  */
-bool IsBetterRoot ( double root, double t_min, double t_max, double closest_t )
+bool IsBetterRoot ( float root, float t_min, float t_max, float closest_t )
 {
 	return IsInBounds( root, t_min, t_max ) && root < closest_t;
 }
@@ -80,10 +80,10 @@ void CreateScene ( Sphere *scene, Light *lights )
 	lights[2].pos       = { 1, 4, 4 };
 }
 
-double CalcLight ( Vect3D P, Vect3D N, Vect3D V, int s, Sphere* scene, Light *lights)
+float CalcLight ( Vect3D P, Vect3D N, Vect3D V, int s, Sphere* scene, Light *lights)
 {
-	double intensity = 0.0;
-	double t_max     = 0;
+	float intensity = 0.0;
+	float t_max     = 0;
 	Vect3D L         = { };
 	Vect3D R         = { };
 	for ( int i = 0; i < 4; i++ )
@@ -104,7 +104,7 @@ double CalcLight ( Vect3D P, Vect3D N, Vect3D V, int s, Sphere* scene, Light *li
 				L     = lights[i].pos;
 				t_max = INFINITY;
 			}
-			double t_min = 0.0001f;
+			float t_min = 0.0001f;
 			auto [shadow_sphere, shadow_t] =
 				ClosestIntersection( P, L, t_min, t_max, scene);
 			if ( shadow_sphere != NULL )
@@ -112,7 +112,7 @@ double CalcLight ( Vect3D P, Vect3D N, Vect3D V, int s, Sphere* scene, Light *li
 				continue;
 			}
 
-			double n_dot_l = N.dot( L );
+			float n_dot_l = N.dot( L );
 			if ( n_dot_l > 0 )
 			{
 				intensity +=
@@ -123,7 +123,7 @@ double CalcLight ( Vect3D P, Vect3D N, Vect3D V, int s, Sphere* scene, Light *li
 			{
 				R = ReflectRay( L, N );
 
-				double r_dot_v = R.dot( V );
+				float r_dot_v = R.dot( V );
 
 
 				if ( r_dot_v > 0 )
@@ -174,7 +174,7 @@ void Init ( BYTE **pLpvBits, RECT *window, HBITMAP *pHBitmap )
 }
 
 float
-	IntersectRaySphere ( Vect3D O, Vect3D D, Sphere sphere, double dDot )
+	IntersectRaySphere ( Vect3D O, Vect3D D, Sphere sphere, float dDot )
 {
 	Vect3D CO = O - sphere.center;
 	float a   = D.dot( D );
@@ -201,13 +201,13 @@ float
 Vect3D CanvasToViewport ( int x, int y, int width, int height )
 {
 	// for simplicity : Vw = Vh = d = 1    approx 53 fov
-	double aspect_ratio = static_cast<double>( width ) / height;
+	float aspect_ratio = static_cast<float>( width ) / height;
 
 	// Map x and y to the viewport, adjusting by aspect ratio
-	double fov_mod = 1;
-	double viewport_x =
+	float fov_mod = 1;
+	float viewport_x =
 		( x - width / 2.0 ) * ( ( 1.0 * fov_mod ) / width ) * aspect_ratio;
-	double viewport_y = -( y - height / 2.0 )
+	float viewport_y = -( y - height / 2.0 )
 						* ( ( 1.0 * fov_mod )
 							/ height ); // Flip Y to match 3D space orientation
 
@@ -217,7 +217,7 @@ Vect3D CanvasToViewport ( int x, int y, int width, int height )
 }
 
 Intersection
-	ClosestIntersection ( Vect3D O, Vect3D D, double t_min, double t_max, Sphere *scene )
+	ClosestIntersection ( Vect3D O, Vect3D D, float t_min, float t_max, Sphere *scene )
 {
 	float closest_t        = INFINITY;
 	Sphere *closest_sphere = NULL;

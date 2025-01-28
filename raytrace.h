@@ -43,7 +43,7 @@ void CreateScene ( Sphere* scene, Light *lights );
  * @param[in] s - Specularity value of object
  * @return Intensity multiplier
  */
-double CalcLight ( Vect3D P, Vect3D N, Vect3D V, int s, Sphere *scene, Light *lights);
+float CalcLight ( Vect3D P, Vect3D N, Vect3D V, int s, Sphere *scene, Light *lights);
 
 /**
  * @brief Main draw function, sets all the pixel values
@@ -71,7 +71,7 @@ void Init ( BYTE **pLpvBits, RECT *window, HBITMAP *pHBitmap );
  *			INFINITY if no points found
  */
 float
-	IntersectRaySphere ( Vect3D O, Vect3D D, Sphere sphere, double dDot );
+	IntersectRaySphere ( Vect3D O, Vect3D D, Sphere sphere, float dDot );
 
 
 /**
@@ -112,7 +112,7 @@ COLORREF TraceRay ( Vect3D O,
  * @return Point of intersection to a sphere from O with direction D
  */
 Intersection
-	ClosestIntersection ( Vect3D O, Vect3D D, double t_min, double t_max, Sphere* scene);
+	ClosestIntersection ( Vect3D O, Vect3D D, float t_min, float t_max, Sphere* scene);
 
 
 /*------------Template Declarations---------------*/

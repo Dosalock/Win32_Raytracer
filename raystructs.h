@@ -23,11 +23,11 @@
  */
 struct Vect3D
 {
-	double x; // @brief Represents the vector's position along the X-axis
-	double y; // @brief Represents the vector's position along the Y-axis
-	double z; // @brief Represents the vector's position along the Z-axis
+	float x; // @brief Represents the vector's position along the X-axis
+	float y; // @brief Represents the vector's position along the Y-axis
+	float z; // @brief Represents the vector's position along the Z-axis
 
-	Vect3D ( double x = 0, double y = 0, double z = 0 ) :
+	Vect3D ( float x = 0, float y = 0, float z = 0 ) :
 		x( x ), y( y ), z( z )
 	{
 	}
@@ -52,12 +52,12 @@ struct Vect3D
 		return Vect3D( x / other.x, y / other.y, z / other.z );
 	}
 
-	Vect3D operator/ ( const double &other ) const
+	Vect3D operator/ ( const float &other ) const
 	{
 		return Vect3D( x / other, y / other, z / other );
 	}
 
-	Vect3D operator* ( const double &other ) const
+	Vect3D operator* ( const float &other ) const
 	{
 		return Vect3D( x * other, y * other, z * other );
 	}
@@ -74,7 +74,7 @@ struct Vect3D
 		return Vect3D( x * -1, y * -1, z * -1 );
 	}
 
-	double len ( ) const
+	float len ( ) const
 	{
 		return sqrt( x * x + y * y + z * z );
 	}
@@ -84,7 +84,7 @@ struct Vect3D
 		return Vect3D( x / len( ), y / len( ), z / len( ) );
 	}
 
-	double dot ( const Vect3D &other ) const
+	float dot ( const Vect3D &other ) const
 	{
 		return x * other.x + y * other.y + z * other.z;
 	}
@@ -97,17 +97,17 @@ struct Vect3D
 struct Sphere
 {
 	Vect3D center;
-	double radius;
+	float radius;
 	COLORREF color;
 	int specularity;
-	double reflective;
-	double raidus_squared;
+	float reflective;
+	float raidus_squared;
 
 	Sphere ( Vect3D center     = { },
-			 double radius     = 0,
+			 float radius     = 0,
 			 COLORREF color    = RGB( 0, 0, 0 ),
 			 int specularity   = 0,
-			 double reflective = 0 ) :
+			 float reflective = 0 ) :
 		center( center ),
 		radius( radius ),
 		color( color ),
@@ -120,14 +120,14 @@ struct Sphere
 
 /**
  * @struct QuadraticRoots raystruct.h
- * @brief Simple two double struct to return answer from the quadratic formula
+ * @brief Simple two float struct to return answer from the quadratic formula
  */
 struct QuadraticRoots
 {
-	double t1;
-	double t2;
+	float t1;
+	float t2;
 
-	QuadraticRoots ( double t1 = 0, double t2 = 0 ) :
+	QuadraticRoots ( float t1 = 0, float t2 = 0 ) :
 		t1( t1 ), t2( t2 )
 	{
 	}
@@ -146,18 +146,18 @@ struct Light
 		AMBIENT
 	} type;
 
-	double intensity;
+	float intensity;
 	Vect3D pos;
 };
 
 struct Camera
 {
 	Vect3D position;
-	double yaw;
-	double pitch;
-	double roll;
+	float yaw;
+	float pitch;
+	float roll;
 
-	double DegreesToRadian ( double degrees )
+	float DegreesToRadian ( float degrees )
 	{
 		return degrees * PI / 180.0;
 	}
@@ -168,11 +168,11 @@ struct Camera
 	 * @param[in] yaw - Degrees to rotate
 	 * @return Rotated vector
 	 */
-	Vect3D RotateYaw ( Vect3D direction, double yaw )
+	Vect3D RotateYaw ( Vect3D direction, float yaw )
 	{
-		double rad  = DegreesToRadian( yaw );
-		double cosY = cos( rad );
-		double sinY = sin( rad );
+		float rad  = DegreesToRadian( yaw );
+		float cosY = cos( rad );
+		float sinY = sin( rad );
 
 		return Vect3D( direction.x * cosY + direction.z * sinY,
 					   direction.y,
@@ -185,11 +185,11 @@ struct Camera
 	 * @param pitch - Degrees to rotate
 	 * @return Rotated vector
 	 */
-	Vect3D RotatePitch ( Vect3D direction, double pitch )
+	Vect3D RotatePitch ( Vect3D direction, float pitch )
 	{
-		double rad  = DegreesToRadian( pitch );
-		double cosX = cos( rad );
-		double sinX = sin( rad );
+		float rad  = DegreesToRadian( pitch );
+		float cosX = cos( rad );
+		float sinX = sin( rad );
 
 		return Vect3D( direction.x,
 					   direction.y * cosX - direction.z * sinX,
@@ -202,11 +202,11 @@ struct Camera
 	 * @param roll - Degrees to rotate
 	 * @return Rotated Vector
 	 */
-	Vect3D RotateRoll ( Vect3D direction, double roll )
+	Vect3D RotateRoll ( Vect3D direction, float roll )
 	{
-		double rad  = DegreesToRadian( roll );
-		double cosZ = cos( rad );
-		double sinZ = sin( rad );
+		float rad  = DegreesToRadian( roll );
+		float cosZ = cos( rad );
+		float sinZ = sin( rad );
 
 		return Vect3D( direction.x * cosZ - direction.y * sinZ,
 					   direction.x * sinZ + direction.y * cosZ,
@@ -229,8 +229,8 @@ struct Camera
 	 */
 	Vect3D CalculateForwardFromEuler ( )
 	{
-		double rPitch  = DegreesToRadian( pitch );
-		double rYaw    = DegreesToRadian( yaw );
+		float rPitch  = DegreesToRadian( pitch );
+		float rYaw    = DegreesToRadian( yaw );
 		float cosPitch = cos( rPitch );
 		float sinPitch = sin( rPitch );
 		float cosYaw   = cos( rYaw );
@@ -243,7 +243,7 @@ struct Camera
 	 * @brief Moves camera forward
 	 * @param moveSpeed - Movement multiplier, backwards < 0 < forewards
 	 */
-	void MoveForward ( double moveSpeed )
+	void MoveForward ( float moveSpeed )
 	{
 		Vect3D forward  = CalculateForwardFromEuler( );
 		position.x     += forward.x * moveSpeed;
@@ -255,7 +255,7 @@ struct Camera
 	 * @brief Moves camera sideways
 	 * @param moveSpeed - Movemet multiplier, right < 0 < left
 	 */
-	void MoveSideways ( double moveSpeed )
+	void MoveSideways ( float moveSpeed )
 	{
 		Vect3D right  = CalculateForwardFromEuler( ).cross( Vect3D( 0, 1, 0 ) );
 		position.x   += right.x * moveSpeed;
@@ -271,10 +271,10 @@ struct Camera
 struct Intersection
 {
 	Sphere *sphere;
-	double point;
+	float point;
 
 	Intersection ( Sphere *closest_sphere = NULL,
-				   double closest_t       = INFINITY ) :
+				   float closest_t       = INFINITY ) :
 		sphere( closest_sphere ), point( closest_t )
 	{
 	}
