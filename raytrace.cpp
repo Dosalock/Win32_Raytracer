@@ -31,9 +31,9 @@ bool IsBetterRoot ( float root, float t_min, float t_max, float closest_t )
 	return IsInBounds( root, t_min, t_max ) && root < closest_t;
 }
 
-Vect3D ReflectRay ( Vect3D R, Vect3D N )
+Vect3D ReflectRay ( Vect3D ray_to_reflect, Vect3D sphere_normal )
 {
-	return ( ( N * ( N.dot( R ) ) ) * 2 ) - R;
+	return ( ( sphere_normal * ( sphere_normal.dot( ray_to_reflect ) ) ) * 2 ) - ray_to_reflect;
 }
 
 void CreateScene ( Sphere *scene, Light *lights )
@@ -79,18 +79,17 @@ void CreateScene ( Sphere *scene, Light *lights )
 	lights[2].pos       = { 1, 4, 4 };
 }
 
-float CalcLight ( Vect3D P,
-				  Vect3D N,
-				  Vect3D V,
-				  int s,
+float CalcLight ( Vect3D intersection_point,
+				  Vect3D normalized_sphere_vector,
+				  Vect3D point_to_camera,
+				  uint32_t sphere_specularity,
 				  Sphere *scene,
 				  Light *lights )
 {
-	float intensity = 0.0;
-	float t_max     = 0;
-	Vect3D L        = { };
-	Vect3D R        = { };
-	for ( int i = 0; i < 4; i++ )
+	float intensity       = 0.0;
+	float t_max           = 0;
+	Vect3D light_position = { };
+	for ( uint32_t i = 0; i < 4; i++ )
 	{
 		if ( lights[i].type == lights->AMBIENT )
 		{
@@ -100,41 +99,52 @@ float CalcLight ( Vect3D P,
 		{
 			if ( lights[i].type == lights->POINT )
 			{
-				L     = ( lights[i].pos - P );
-				t_max = 1;
+				light_position = ( lights[i].pos - intersection_point );
+				t_max          = 1;
 			}
 			else
 			{
-				L     = lights[i].pos;
-				t_max = INFINITY;
+				light_position = lights[i].pos;
+				t_max          = INFINITY;
 			}
 			float t_min = 0.0001f;
 			auto [shadow_sphere, shadow_t] =
-				ClosestIntersection( P, L, t_min, t_max, scene );
+				ClosestIntersection( intersection_point,
+									 light_position,
+									 t_min,
+									 t_max,
+									 scene );
 			if ( shadow_sphere != NULL )
 			{
 				continue;
 			}
 
-			float n_dot_l = N.dot( L );
-			if ( n_dot_l > 0 )
+			float sphere_light_alignment = normalized_sphere_vector.dot( light_position );
+
+			/* If < it is behind */
+			if ( sphere_light_alignment > 0 )
 			{
-				intensity +=
-					lights[i].intensity * n_dot_l / ( N.len( ) * L.len( ) );
+				intensity += lights[i].intensity * sphere_light_alignment
+							 / ( normalized_sphere_vector.len( )
+								 * light_position.len( ) );
 			}
 
-			if ( s != -1 )
+			if ( sphere_specularity != -1 )
 			{
-				R = ReflectRay( L, N );
+				Vect3D sphere_to_light =
+					ReflectRay( light_position, normalized_sphere_vector );
 
-				float r_dot_v = R.dot( V );
+				float vector_alignment_to_camera =
+					sphere_to_light.dot( point_to_camera );
 
-
-				if ( r_dot_v > 0 )
+				/* If < 0 the object is behind the camera */
+				if ( vector_alignment_to_camera > 0 )
 				{
-					intensity +=
-						lights[i].intensity
-						* pow( r_dot_v / ( R.len( ) * ( V.len( ) ) ), s );
+					intensity += lights[i].intensity
+								 * powf( vector_alignment_to_camera
+											 / ( sphere_to_light.len( )
+												 * ( point_to_camera.len( ) ) ),
+										 sphere_specularity );
 				}
 			}
 		}
@@ -176,25 +186,36 @@ void Init ( BYTE **pLpvBits, RECT *window, HBITMAP *pHBitmap )
 	memset( *pLpvBits, 0, width * height * 4 );
 }
 
-float IntersectRaySphere ( Vect3D O, Vect3D D, Sphere sphere, float dDot )
+float IntersectRaySphere ( Vect3D origin,
+						   Vect3D direction_from_origin,
+						   Sphere sphere,
+						   float direction_from_origin_dot_product )
 {
-	Vect3D CO = O - sphere.center;
-	float a   = D.dot( D );
-	float b   = 2 * CO.dot( D );
-	float c   = CO.dot( CO ) - sphere.raidus_squared;
+	/**
+	 * This is a simplified quadratic root equation
+	 * Mostly familiar in the form:
+	 * { t1, t2 } = (-b (+/-) sqrt(b^2 - 4ac) / 2a
+	 *
+	 * We just calculate one of the roots in favor of efficiency
+	 */
 
-	float discr = b * b - 4 * a * c;
+	Vect3D center_to_orign = origin - sphere.center;
 
-	if ( discr < 0 )
+	float a = direction_from_origin_dot_product;
+	float b = 2 * center_to_orign.dot( direction_from_origin );
+	float c = center_to_orign.dot( center_to_orign ) - sphere.raidus_squared;
+	float discriminant = b * b - 4 * a * c;
+
+	if ( discriminant < 0 )
 	{
 		return INFINITY;
 	}
-	else if ( discr == 0 )
+	else if ( discriminant == 0 )
 	{
 		return -b / ( 2 * a );
 	}
 
-	float t = ( -b - sqrtf( discr ) )
+	float t = ( -b - sqrtf( discriminant ) )
 			  / ( 2 * a ); // Minimize compute only go for 1 root;
 
 	return t;
@@ -218,20 +239,26 @@ Vect3D CanvasToViewport ( int x, int y, int width, int height )
 				   1 ); // Z=1 for perspective projection
 }
 
-Intersection ClosestIntersection ( Vect3D O,
-								   Vect3D D,
+Intersection ClosestIntersection ( Vect3D origin,
+								   Vect3D direction_from_origin,
 								   float t_min,
 								   float t_max,
 								   Sphere *scene )
 {
-	float closest_point_t  = INFINITY;
 	Sphere *closest_sphere = NULL;
-	float d_dot_d          = D.dot( D ); // Cache immutable value
+	float closest_point_t  = INFINITY;
+
+	// Cache immutable value, saves compute
+	float projection_plane_dot_product =
+		direction_from_origin.dot( direction_from_origin );
 
 
 	for ( int sphere = 0; sphere < 4; sphere++ )
 	{
-		float possible_t = IntersectRaySphere( O, D, scene[sphere], d_dot_d );
+		float possible_t = IntersectRaySphere( origin,
+											   direction_from_origin,
+											   scene[sphere],
+											   projection_plane_dot_product );
 
 		if ( IsBetterRoot( possible_t, t_min, t_max, closest_point_t ) )
 		{
@@ -367,9 +394,9 @@ void Draw ( BYTE **pLpvBits,
 			Light *lights )
 {
 	Vect3D projection_plane_point = { };
-	int recursionDepth           = 1;
-	float t_min                  = 0.001; // Epsilon do
-	float t_max                  = INFINITY;
+	int recursionDepth            = 1;
+	float t_min                   = 0.001; // Epsilon do
+	float t_max                   = INFINITY;
 
 	for ( int x = 0; ( x < ( width ) ); ++x )
 	{
