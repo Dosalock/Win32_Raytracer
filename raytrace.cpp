@@ -224,29 +224,44 @@ Intersection ClosestIntersection ( Vect3D O,
 								   float t_max,
 								   Sphere *scene )
 {
-	float closest_t        = INFINITY;
+	float closest_point_t  = INFINITY;
 	Sphere *closest_sphere = NULL;
 	float d_dot_d          = D.dot( D ); // Cache immutable value
 
 
 	for ( int sphere = 0; sphere < 4; sphere++ )
 	{
-		float t = IntersectRaySphere( O, D, scene[sphere], d_dot_d );
+		float possible_t = IntersectRaySphere( O, D, scene[sphere], d_dot_d );
 
-		if ( IsBetterRoot( t, t_min, t_max, closest_t ) )
+		if ( IsBetterRoot( possible_t, t_min, t_max, closest_point_t ) )
 		{
-			closest_t      = t;
-			closest_sphere = const_cast<Sphere *>( &scene[sphere] );
+			closest_point_t = possible_t;
+			closest_sphere  = const_cast<Sphere *>( &scene[sphere] );
 		}
 	}
-	return Intersection( closest_sphere, closest_t );
+	return Intersection( closest_sphere, closest_point_t );
 }
 
+/**
+ * @brief Clamps color channel between 0 and 255
+ * @param color - Color channel
+ * @return Returns a uint16_t color channel thats been clamped
+ */
 uint16_t ClampColor ( uint16_t color )
 {
 	return max( 0, min( 255, color ) );
 }
 
+/**
+ * @brief Calculates final color of point, taking reflectiveness and reflection
+ * modifiers into account
+ * @param r - Red after light calculations
+ * @param g - Green after light caluclations
+ * @param b - Blue after light calculations
+ * @param reflected_color - Color from inverted ray of reflection
+ * @param reflectiveness - Reflectiveness of the sphere where the point exists
+ * @return
+ */
 COLORREF CalculateFinalColor ( uint16_t &r,
 							   uint16_t &g,
 							   uint16_t &b,
@@ -351,7 +366,7 @@ void Draw ( BYTE **pLpvBits,
 			Sphere *scene,
 			Light *lights )
 {
-	Vect3D pojection_plane_point = { };
+	Vect3D projection_plane_point = { };
 	int recursionDepth           = 1;
 	float t_min                  = 0.001; // Epsilon do
 	float t_max                  = INFINITY;
@@ -360,12 +375,12 @@ void Draw ( BYTE **pLpvBits,
 	{
 		for ( int y = 0; ( y < ( height ) ); ++y )
 		{
-			pojection_plane_point = CanvasToViewport( x, y, width, height );
-			pojection_plane_point =
-				cam.ApplyCameraRotation( pojection_plane_point, cam );
+			projection_plane_point = CanvasToViewport( x, y, width, height );
+			projection_plane_point =
+				cam.ApplyCameraRotation( projection_plane_point, cam );
 
 			COLORREF color = TraceRay( cam.position,
-									   pojection_plane_point,
+									   projection_plane_point,
 									   t_min,
 									   t_max,
 									   recursionDepth,
