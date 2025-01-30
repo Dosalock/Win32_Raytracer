@@ -133,6 +133,7 @@
     <ClCompile Include="raystructs.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="helper.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="raytrace.h" />
     <ClInclude Include="raystructs.h" />

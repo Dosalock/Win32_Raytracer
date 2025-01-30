@@ -11,6 +11,7 @@
 
 /*------------------Libraries---------------------*/
 #include "raytrace.h"
+#include "helper.h"
 
 /*------------Varible initialzation---------------*/
 
@@ -226,7 +227,10 @@ float IntersectRaySphere ( Vect3D origin,
     return t;
 }
 
-Vect3D CanvasToViewport ( int x, int y, int width, int height )
+Vect3D CanvasToViewport ( _In_ uint16_t x,
+                          _In_ uint16_t y,
+                          _In_ uint16_t width,
+                          _In_ uint16_t height )
 {
     // for simplicity : Vw = Vh = d = 1    approx 53 fov
     float aspect_ratio = static_cast<float>( width ) / height;
@@ -274,51 +278,15 @@ Intersection ClosestIntersection ( Vect3D origin,
     return Intersection( closest_sphere, closest_point_t );
 }
 
-/**
- * @brief Clamps color channel between 0 and 255
- * @param color - Color channel
- * @return Returns a uint16_t color channel thats been clamped
- */
-uint16_t ClampColor ( uint16_t color )
-{
-    return max( 0, min( 255, color ) );
-}
 
-/**
- * @brief Calculates final color of point, taking reflectiveness and reflection
- * modifiers into account
- * @param r - Red after light calculations
- * @param g - Green after light caluclations
- * @param b - Blue after light calculations
- * @param reflected_color - Color from inverted ray of reflection
- * @param reflectiveness - Reflectiveness of the sphere where the point exists
- * @return
- */
-COLORREF CalculateFinalColor ( uint16_t &r,
-                               uint16_t &g,
-                               uint16_t &b,
-                               COLORREF &reflected_color,
-                               float &reflectiveness )
-{
-    uint16_t reflected_r =
-        static_cast<uint16_t>( GetRValue( reflected_color ) * reflectiveness );
-    uint16_t reflected_g =
-        static_cast<uint16_t>( GetGValue( reflected_color ) * reflectiveness );
-    uint16_t reflected_b =
-        static_cast<uint16_t>( GetBValue( reflected_color ) * reflectiveness );
 
-    return RGB( ClampColor( r * ( 1 - reflectiveness ) + ( reflected_r ) ),
-                ClampColor( g * ( 1 - reflectiveness ) + ( reflected_g ) ),
-                ClampColor( b * ( 1 - reflectiveness ) + ( reflected_b ) ) );
-}
-
-COLORREF TraceRay ( Vect3D origin,
-                    Vect3D destination,
-                    float t_min,
-                    float t_max,
-                    int recursion_depth,
-                    Sphere *scene,
-                    Light *lights )
+COLORREF TraceRay ( _In_ Vect3D origin,
+                    _In_ Vect3D destination,
+                    _In_ float t_min,
+                    _In_ float t_max,
+                    _In_ uint8_t recursion_depth,
+                    _In_ Sphere *scene,
+                    _In_ Light *lights )
 {
     Vect3D intersection_sphere_normal = { };
     Vect3D origin_to_destination      = { };
@@ -360,7 +328,7 @@ COLORREF TraceRay ( Vect3D origin,
                                            * color_lighting_modifier );
     uint16_t green = static_cast<uint16_t>( GetGValue( closest_sphere->color )
                                             * color_lighting_modifier );
-
+	
 
     float sphere_reflectivness = closest_sphere->reflective;
 
@@ -391,28 +359,32 @@ COLORREF TraceRay ( Vect3D origin,
                                 sphere_reflectivness );
 }
 
-void Draw ( BYTE **pLpvBits,
-            int width,
-            int height,
-            Camera camera,
-            Sphere *scene,
-            Light *lights )
+void Draw ( _Inout_ BYTE **p_lpv_bits,
+            _In_ uint16_t width,
+            _In_ uint16_t height,
+            _In_ Camera camera,
+            _In_ Sphere *scene,
+            _In_ Light *lights )
 {
-    Vect3D projection_plane_point = { };
-    int recursionDepth            = 1;
-    float t_min                   = 0.001; // Epsilon do
-    float t_max                   = INFINITY;
+    Vect3D projection_plane_point  = { };
+    Vect3D translated_camera_point = { };
+    uint8_t recursionDepth         = 1;
+    uint8_t bytes_in_a_pixel       = 4; /* Red, green, blue, and alpha */
+    float t_min                    = 0.001; /* Epsilon */
+    float t_max                    = INFINITY;
 
-    for ( int x = 0; ( x < ( width ) ); ++x )
+
+    for ( uint16_t x = 0; x < width; ++x )
     {
-        for ( int y = 0; ( y < ( height ) ); ++y )
+        for ( uint16_t y = 0; y < height; ++y )
         {
             projection_plane_point = CanvasToViewport( x, y, width, height );
-            projection_plane_point =
-                cam.ApplyCameraRotation( projection_plane_point, cam );
+            translated_camera_point =
+                camera.ApplyCameraRotation( projection_plane_point, camera );
+			
 
-            COLORREF color = TraceRay( cam.position,
-                                       projection_plane_point,
+            COLORREF color = TraceRay( camera.position,
+                                       translated_camera_point,
                                        t_min,
                                        t_max,
                                        recursionDepth,
@@ -420,16 +392,22 @@ void Draw ( BYTE **pLpvBits,
                                        lights );
 
 
-            int offset = ( y * width + x ) * 4;
-            if ( offset >= 0 && offset < width * height * 4 - 4 )
+            /* canvas coordinates to memory pointer offset */
+            uint32_t canvas_coordinate_offset =
+                ( y * width + x ) * bytes_in_a_pixel;
+
+            /* Max size of pixel buffer */
+            uint32_t canvas_coordinate_upper_bound =
+                width * height * bytes_in_a_pixel - bytes_in_a_pixel;
+
+            /* Start of pixel buffer */
+			uint8_t canvas_coordinate_lower_bound = 0;
+			
+            if ( IsInBounds( canvas_coordinate_offset,
+                             canvas_coordinate_lower_bound,
+                             canvas_coordinate_upper_bound ) )
             {
-                ( *pLpvBits )[offset + 0] =
-                    static_cast<uint16_t>( GetBValue( color ) );
-                ( *pLpvBits )[offset + 1] =
-                    static_cast<uint16_t>( GetGValue( color ) );
-                ( *pLpvBits )[offset + 2] =
-                    static_cast<uint16_t>( GetRValue( color ) );
-                ( *pLpvBits )[offset + 3] = 255;
+                SetPixelToColor( p_lpv_bits, canvas_coordinate_offset, color );
             }
         }
     }

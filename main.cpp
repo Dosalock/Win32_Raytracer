@@ -11,62 +11,90 @@
 
 /*------------------Includes---------------------*/
 #include "main.h"
+#include <chrono>
 #include <unordered_map>
+
 /*------------Varible initialzation--------------*/
 #define clock std::chrono::high_resolution_clock
 
-HBITMAP hBitmap                     = NULL;
-HDC hdcWindow                       = NULL;
-BYTE* lpvBits                       = NULL;
+HBITMAP h_bitmap                    = NULL;
+HDC hdc_window                      = NULL;
+BYTE* lpv_bits                      = NULL;
 RECT window                         = { };
 Camera cam                          = { };
 int height                          = 0;
 int width                           = 0;
 std::chrono::time_point clock_start = std::chrono::steady_clock( ).now( );
-bool cameraIsMoving                 = false;
+bool camera_is_moving               = false;
 bool drawing_frame                  = false;
 float delta_time                    = 0.0f;
-float moveSpeed                     = 0.1f;
-float rotationSpeed                 = 2.0f;
-long long secondsPerFrame           = 33'000'000;
+float move_speed                    = 0.1f;
+float rotation_speed                = 2.0f;
+long long nanoseconds_per_frame     = 33'000'000;
 Sphere scene[4]                     = { };
 Light lights[3]                     = { };
-std::unordered_map<int, bool> keyStates;
+std::unordered_map<int, bool> key_states;
+
+
+/*-------------Function Declaration--------------*/
+
+void GameUpdate ( );
+
+void RenderFrame ( HWND h_wnd );
+
+int WINAPI WinMain ( _In_ HINSTANCE hInstance,
+                     _In_opt_ HINSTANCE hPrevInstance,
+                     _In_ LPSTR lpCmdLine,
+                     _In_ int nCmdShow );
+
+LRESULT CALLBACK WindowProc ( HWND hwnd,
+                              UINT uMsg,
+                              WPARAM wParam,
+                              LPARAM lParam );
 
 /*-------------Function Definitions--------------*/
 
-void RenderFrame ( HWND hWnd )
+
+/**
+ * @brief Tells system to render a new frame
+ *
+ * @param h_wnd[in] - Handle to window
+ */
+void RenderFrame ( HWND h_wnd )
 {
-    Draw( &lpvBits, width, height, cam, scene, lights );
-    InvalidateRect( hWnd, NULL, TRUE );
+    Draw( &lpv_bits, width, height, cam, scene, lights );
+    InvalidateRect( h_wnd, NULL, TRUE );
 }
 
+/**
+ * @brief Updates camera movement, based on key_states
+ */
 void GameUpdate ( )
 {
     // Camera updates should happen here
-    if ( keyStates['W'] )
+    if ( key_states['W'] )
     {
-        cam.MoveForward( moveSpeed );
+        cam.MoveForward( move_speed );
     }
-    if ( keyStates['A'] )
+    if ( key_states['A'] )
     {
-        cam.MoveSideways( moveSpeed );
+        cam.MoveSideways( move_speed );
     }
-    if ( keyStates['S'] )
+    if ( key_states['S'] )
     {
-        cam.MoveForward( -moveSpeed );
+        cam.MoveForward( -move_speed );
     }
-    if ( keyStates['D'] )
+    if ( key_states['D'] )
     {
-        cam.MoveSideways( -moveSpeed );
+        cam.MoveSideways( -move_speed );
     }
-    if ( keyStates['Q'] )
+    if ( key_states['Q'] )
     {
-        cam.yaw -= rotationSpeed;
+        cam.yaw -= rotation_speed;
     }
-    if ( keyStates['E'] )
+    if ( key_states['E'] )
     {
-        cam.yaw += rotationSpeed;
+        cam.yaw += rotation_speed;
     }
 }
 
@@ -87,20 +115,20 @@ int WINAPI WinMain ( _In_ HINSTANCE hInstance,
                      _In_ int nCmdShow )
 {
     // Register window class
-    const wchar_t CLASS_NAME[] = L"Window";
+    const wchar_t class_name[] = L"Window";
 
 
-    WNDCLASS WindowClass = { };
+    WNDCLASS window_class = { };
 
-    WindowClass.lpfnWndProc   = WindowProc;
-    WindowClass.hInstance     = hInstance;
-    WindowClass.lpszClassName = CLASS_NAME;
+    window_class.lpfnWndProc   = WindowProc;
+    window_class.hInstance     = hInstance;
+    window_class.lpszClassName = class_name;
 
-    RegisterClass( &WindowClass );
+    RegisterClass( &window_class );
 
     // Create window
     HWND hwnd = CreateWindowEx( 0,
-                                CLASS_NAME,
+                                class_name,
                                 L"Win32 Raytracer",
                                 WS_OVERLAPPEDWINDOW, // Style of window
 
@@ -120,13 +148,13 @@ int WINAPI WinMain ( _In_ HINSTANCE hInstance,
     }
     CreateScene( scene, lights );
     GetClientRect( hwnd, &window );
-    Init( &lpvBits, &hBitmap, &window );
+    Init( &lpv_bits, &h_bitmap, &window );
     ShowWindow( hwnd, nCmdShow );
     UpdateWindow( hwnd );
 
     MSG msg = { };
 
-    auto dEpoch      = std::chrono::steady_clock::now( );
+    auto delta_epoch = std::chrono::steady_clock::now( );
     auto cached_time = std::chrono::steady_clock::now( );
 
     while ( msg.message != WM_QUIT )
@@ -140,7 +168,7 @@ int WINAPI WinMain ( _In_ HINSTANCE hInstance,
         {
             // game loop
             auto now = std::chrono::steady_clock::now( );
-            if ( ( now - clock_start ).count( ) >= secondsPerFrame )
+            if ( ( now - clock_start ).count( ) >= nanoseconds_per_frame )
             {
                 clock_start = now;
                 delta_time  = 1.0f; // Use this to scale camera speed
@@ -154,7 +182,7 @@ int WINAPI WinMain ( _In_ HINSTANCE hInstance,
             }
         }
     }
-    UnregisterClass( L"Win32 Raytracer", WindowClass.hInstance );
+    UnregisterClass( L"Win32 Raytracer", window_class.hInstance );
     return 0;
 }
 
@@ -185,9 +213,9 @@ LRESULT CALLBACK WindowProc ( HWND hwnd,
         case WM_DESTROY:
         {
             // Cleanup
-            if ( hBitmap )
+            if ( h_bitmap )
             {
-                DeleteObject( hBitmap );
+                DeleteObject( h_bitmap );
             }
             PostQuitMessage( 0 );
 
@@ -205,7 +233,7 @@ LRESULT CALLBACK WindowProc ( HWND hwnd,
             HDC hdc = BeginPaint( hwnd, &ps );
 
             HDC hdcMem        = CreateCompatibleDC( hdc );
-            HGDIOBJ oldBitmap = SelectObject( hdcMem, hBitmap );
+            HGDIOBJ oldBitmap = SelectObject( hdcMem, h_bitmap );
 
             BitBlt( hdc, 0, 0, width, height, hdcMem, 0, 0, SRCCOPY );
 
@@ -224,12 +252,12 @@ LRESULT CALLBACK WindowProc ( HWND hwnd,
         }
         case WM_KEYUP:
         {
-            keyStates[wParam] = false;
+            key_states[wParam] = false;
             break;
         }
         case WM_KEYDOWN:
         {
-            keyStates[wParam] = true;
+            key_states[wParam] = true;
             break;
         }
         default:

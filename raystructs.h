@@ -241,7 +241,7 @@ struct Camera
 
     /**
      * @brief Moves camera forward
-     * @param moveSpeed - Movement multiplier, backwards < 0 < forewards
+     * @param move_speed - Movement multiplier, backwards < 0 < forewards
      */
     void MoveForward ( float moveSpeed )
     {
@@ -253,7 +253,7 @@ struct Camera
 
     /**
      * @brief Moves camera sideways
-     * @param moveSpeed - Movemet multiplier, right < 0 < left
+     * @param move_speed - Movemet multiplier, right < 0 < left
      */
     void MoveSideways ( float moveSpeed )
     {
