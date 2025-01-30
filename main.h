@@ -25,15 +25,15 @@
 
 
 int WINAPI WinMain ( _In_ HINSTANCE hInstance,
-					 _In_opt_ HINSTANCE hPrevInstance,
-					 _In_ LPSTR lpCmdLine,
-					 _In_ int nCmdShow );
+                     _In_opt_ HINSTANCE hPrevInstance,
+                     _In_ LPSTR lpCmdLine,
+                     _In_ int nCmdShow );
 
 
 LRESULT CALLBACK WindowProc ( HWND hwnd,
-							  UINT uMsg,
-							  WPARAM wParam,
-							  LPARAM lParam );
+                              UINT uMsg,
+                              WPARAM wParam,
+                              LPARAM lParam );
 /*---------------------------------------*/
 /*---------------------------------------*/
 /*---------------------------------------*/
