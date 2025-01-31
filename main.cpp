@@ -134,9 +134,8 @@ int WINAPI WinMain ( _In_ HINSTANCE hInstance,
 
                                 CW_USEDEFAULT,
                                 CW_USEDEFAULT,
-                                512,
-                                512,
-
+                                600,
+                                600,
                                 NULL,
                                 NULL,
                                 hInstance,

@@ -42,22 +42,22 @@ void CreateScene ( Sphere *scene, Light *lights )
 {
     scene[0].center         = Vect3D( 0, -1, 3 );
     scene[0].radius         = 1;
-    scene[0].color          = RGB( 255, 0, 0 );
+    scene[0].color          = RGB( 255, 0, 0 ); 
     scene[0].specularity    = 500;
     scene[0].reflective     = 0.2;
     scene[0].raidus_squared = scene[0].radius * scene[0].radius;
 
-    scene[1].center         = Vect3D( 2, 0, 4 );
+    scene[1].center         = Vect3D( -2, 0, 4 );
     scene[1].radius         = 1;
-    scene[1].color          = RGB( 0, 0, 255 );
-    scene[1].specularity    = 500;
+    scene[1].color          = RGB( 0, 255, 0 );
+    scene[1].specularity    = 10;
     scene[1].reflective     = 0.3;
     scene[1].raidus_squared = scene[1].radius * scene[1].radius;
-
-    scene[2].center         = Vect3D( -2, 0, 4 );
+    
+	scene[2].center         = Vect3D( 2, 0, 4 );
     scene[2].radius         = 1;
-    scene[2].color          = RGB( 0, 255, 0 );
-    scene[2].specularity    = 10;
+    scene[2].color          = RGB( 0, 0, 255 );
+    scene[2].specularity    = 500;
     scene[2].reflective     = 0.4;
     scene[2].raidus_squared = scene[2].radius * scene[2].radius;
 
@@ -69,41 +69,41 @@ void CreateScene ( Sphere *scene, Light *lights )
     scene[3].raidus_squared = scene[3].radius * scene[3].radius;
 
     lights[0].type      = lights->AMBIENT;
-    lights[0].intensity = 0.2;
+    lights[0].intensity = 0.15;
     // lights[0].pos = { 0,0,0 }; //prettysure this is useless
 
     lights[1].type      = lights->POINT;
-    lights[1].intensity = 0.6;
+    lights[1].intensity = 0.55;
     lights[1].pos       = { 2, 1, 0 };
 
     lights[2].type      = lights->DIRECTIONAL;
-    lights[2].intensity = 0.2;
+    lights[2].intensity = 0.15;
     lights[2].pos       = { 1, 4, 4 };
 }
 
-float CalcLight ( Vect3D intersection_point,
-                  Vect3D normalized_sphere_vector,
-                  Vect3D point_to_camera,
-                  uint32_t sphere_specularity,
-                  Sphere *scene,
-                  Light *lights )
+float CalcLight ( _In_ Vect3D intersection_point,
+                  _In_ Vect3D normalized_sphere_vector,
+                  _In_ Vect3D point_to_camera,
+                  _In_ uint32_t sphere_specularity,
+                  _In_ Sphere *scene,
+                  _In_ Light *lights )
 {
-    float intensity       = 0.0;
-    float t_max           = 0;
+    float intensity       = 0.0f;
+    float t_max           = 0.0f;
     Vect3D light_position = { };
 
-    for ( uint32_t i = 0; i < 4; i++ )
+    for ( uint32_t i = 0; i < 2; i++ )
     {
         if ( lights[i].type == lights->AMBIENT )
         {
-            intensity += lights[i].intensity;
+            intensity += lights[i].intensity; 
         }
         else
         {
             if ( lights[i].type == lights->POINT )
             {
                 light_position = ( lights[i].pos - intersection_point );
-                t_max          = 1;
+                t_max          = 1.0f;
             }
             else
             {
@@ -111,7 +111,7 @@ float CalcLight ( Vect3D intersection_point,
                 t_max          = INFINITY;
             }
 
-            float t_min = 0.0001f;
+            float t_min = 0.001f;
 
             auto [shadow_sphere, shadow_point_t] =
                 ClosestIntersection( intersection_point,
@@ -128,7 +128,7 @@ float CalcLight ( Vect3D intersection_point,
                 normalized_sphere_vector.dot( light_position );
 
             /* If < it is behind */
-            if ( sphere_light_alignment > 0 )
+            if ( sphere_light_alignment > 0.0001f )
             {
                 intensity += lights[i].intensity * sphere_light_alignment
                              / ( normalized_sphere_vector.len( )
@@ -147,7 +147,7 @@ float CalcLight ( Vect3D intersection_point,
                 if ( vector_alignment_to_camera > 0 )
                 {
                     intensity += lights[i].intensity
-                                 * powf( vector_alignment_to_camera
+                                 * pow( vector_alignment_to_camera
                                              / ( sphere_to_light.len( )
                                                  * ( point_to_camera.len( ) ) ),
                                          sphere_specularity );
@@ -192,10 +192,10 @@ void Init ( BYTE **pLpvBits, HBITMAP *pHBitmap, RECT *window )
     memset( *pLpvBits, 0, width * height * 4 );
 }
 
-float IntersectRaySphere ( Vect3D origin,
-                           Vect3D direction_from_origin,
-                           Sphere sphere,
-                           float direction_from_origin_dot_product )
+float IntersectRaySphere ( _In_ Vect3D origin,
+                           _In_ Vect3D direction_from_origin,
+                           _In_ Sphere sphere,
+                           _In_ float direction_from_origin_dot_product )
 {
     /**
      * This is a simplified quadratic root equation
@@ -248,11 +248,11 @@ Vect3D CanvasToViewport ( _In_ uint16_t x,
                    1 ); // Z=1 for perspective projection
 }
 
-Intersection ClosestIntersection ( Vect3D origin,
-                                   Vect3D direction_from_origin,
-                                   float t_min,
-                                   float t_max,
-                                   Sphere *scene )
+Intersection ClosestIntersection ( _In_ Vect3D origin,
+                                   _In_ Vect3D direction_from_origin,
+                                   _In_ float t_min,
+                                   _In_ float t_max,
+                                   _In_ Sphere *scene )
 {
     Sphere *closest_sphere = NULL;
     float closest_point_t  = INFINITY;
@@ -277,8 +277,6 @@ Intersection ClosestIntersection ( Vect3D origin,
     }
     return Intersection( closest_sphere, closest_point_t );
 }
-
-
 
 COLORREF TraceRay ( _In_ Vect3D origin,
                     _In_ Vect3D destination,
@@ -322,22 +320,21 @@ COLORREF TraceRay ( _In_ Vect3D origin,
 
 
     /* Split colors into R, G, and B and apply lightning modifier */
-    uint16_t red   = static_cast<uint16_t>( GetRValue( closest_sphere->color )
-                                          * color_lighting_modifier );
-    uint16_t blue  = static_cast<uint16_t>( GetBValue( closest_sphere->color )
-                                           * color_lighting_modifier );
-    uint16_t green = static_cast<uint16_t>( GetGValue( closest_sphere->color )
-                                            * color_lighting_modifier );
-	
+    uint32_t red   = static_cast<uint32_t>( GetRValue( closest_sphere->color ));
+                                        
+    uint32_t green = static_cast<uint32_t>( GetGValue( closest_sphere->color ));
+                                        
+    uint32_t blue  = static_cast<uint32_t>( GetBValue( closest_sphere->color ));
+
+    COLORREF lit_color = ApplyMultiplierToColor( red,green,blue,
+                                                 color_lighting_modifier );
 
     float sphere_reflectivness = closest_sphere->reflective;
 
     /* Return if no more reflections need to be calculated */
     if ( recursion_depth <= 0 || sphere_reflectivness <= 0 )
     {
-        return RGB( ClampColor( red ),
-                    ClampColor( green ),
-                    ClampColor( blue ) );
+        return lit_color;
     }
 
     reflected_ray =
@@ -352,9 +349,7 @@ COLORREF TraceRay ( _In_ Vect3D origin,
                                          scene,
                                          lights );
 
-    return CalculateFinalColor( red,
-                                green,
-                                blue,
+    return CalculateFinalColor( lit_color,
                                 reflected_color,
                                 sphere_reflectivness );
 }
@@ -368,7 +363,7 @@ void Draw ( _Inout_ BYTE **p_lpv_bits,
 {
     Vect3D projection_plane_point  = { };
     Vect3D translated_camera_point = { };
-    uint8_t recursionDepth         = 1;
+    uint8_t recursionDepth         = 3;
     uint8_t bytes_in_a_pixel       = 4; /* Red, green, blue, and alpha */
     float t_min                    = 0.001; /* Epsilon */
     float t_max                    = INFINITY;
@@ -381,7 +376,7 @@ void Draw ( _Inout_ BYTE **p_lpv_bits,
             projection_plane_point = CanvasToViewport( x, y, width, height );
             translated_camera_point =
                 camera.ApplyCameraRotation( projection_plane_point, camera );
-			
+
 
             COLORREF color = TraceRay( camera.position,
                                        translated_camera_point,
@@ -401,8 +396,8 @@ void Draw ( _Inout_ BYTE **p_lpv_bits,
                 width * height * bytes_in_a_pixel - bytes_in_a_pixel;
 
             /* Start of pixel buffer */
-			uint8_t canvas_coordinate_lower_bound = 0;
-			
+            uint8_t canvas_coordinate_lower_bound = 0;
+
             if ( IsInBounds( canvas_coordinate_offset,
                              canvas_coordinate_lower_bound,
                              canvas_coordinate_upper_bound ) )
