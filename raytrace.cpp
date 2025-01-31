@@ -278,8 +278,6 @@ Intersection ClosestIntersection ( Vect3D origin,
     return Intersection( closest_sphere, closest_point_t );
 }
 
-
-
 COLORREF TraceRay ( _In_ Vect3D origin,
                     _In_ Vect3D destination,
                     _In_ float t_min,
@@ -322,13 +320,13 @@ COLORREF TraceRay ( _In_ Vect3D origin,
 
 
     /* Split colors into R, G, and B and apply lightning modifier */
-    uint16_t red   = static_cast<uint16_t>( GetRValue( closest_sphere->color )
-                                          * color_lighting_modifier );
-    uint16_t blue  = static_cast<uint16_t>( GetBValue( closest_sphere->color )
-                                           * color_lighting_modifier );
-    uint16_t green = static_cast<uint16_t>( GetGValue( closest_sphere->color )
+    uint32_t red   = static_cast<uint32_t>( GetRValue( closest_sphere->color )
+                                        * color_lighting_modifier );
+    uint32_t green = static_cast<uint32_t>( GetGValue( closest_sphere->color )
                                             * color_lighting_modifier );
-	
+    uint32_t blue  = static_cast<uint32_t>( GetBValue( closest_sphere->color )
+                                         * color_lighting_modifier );
+    COLORREF debug = RGB( red,green,blue);
 
     float sphere_reflectivness = closest_sphere->reflective;
 
@@ -351,12 +349,17 @@ COLORREF TraceRay ( _In_ Vect3D origin,
                                          recursion_depth - 1,
                                          scene,
                                          lights );
+	
+    COLORREF lit_color = RGB( red, green, blue );
+	
+	COLORREF final_color = CalculateFinalColor( red,
+                                                green,
+                                                blue,
+                                                lit_color,
+                                                reflected_color,
+                                                sphere_reflectivness ); 
 
-    return CalculateFinalColor( red,
-                                green,
-                                blue,
-                                reflected_color,
-                                sphere_reflectivness );
+    return final_color;
 }
 
 void Draw ( _Inout_ BYTE **p_lpv_bits,
@@ -370,7 +373,7 @@ void Draw ( _Inout_ BYTE **p_lpv_bits,
     Vect3D translated_camera_point = { };
     uint8_t recursionDepth         = 1;
     uint8_t bytes_in_a_pixel       = 4; /* Red, green, blue, and alpha */
-    float t_min                    = 0.001; /* Epsilon */
+    float t_min                    = 0.001f; /* Epsilon */
     float t_max                    = INFINITY;
 
 
@@ -381,7 +384,7 @@ void Draw ( _Inout_ BYTE **p_lpv_bits,
             projection_plane_point = CanvasToViewport( x, y, width, height );
             translated_camera_point =
                 camera.ApplyCameraRotation( projection_plane_point, camera );
-			
+
 
             COLORREF color = TraceRay( camera.position,
                                        translated_camera_point,
@@ -401,8 +404,8 @@ void Draw ( _Inout_ BYTE **p_lpv_bits,
                 width * height * bytes_in_a_pixel - bytes_in_a_pixel;
 
             /* Start of pixel buffer */
-			uint8_t canvas_coordinate_lower_bound = 0;
-			
+            uint8_t canvas_coordinate_lower_bound = 0;
+
             if ( IsInBounds( canvas_coordinate_offset,
                              canvas_coordinate_lower_bound,
                              canvas_coordinate_upper_bound ) )

@@ -4,30 +4,30 @@
 
 /**
  * @brief Clamps color channel between 0 and 255
- * 
+ *
  * @param color - Color channel
- * 
+ *
  * @return Returns a uint16_t color channel thats been clamped
  */
-uint16_t ClampColor ( uint16_t color )
+static uint32_t ClampColor ( uint32_t  color )
 {
     return max( 0, min( 255, color ) );
 }
 
 /**
  * @brief Applies multiplier to color, channel wise
- * 
+ *
  * @param[in] color - Color, COLOREF
  * @param[in] multiplier - Multiplier
- * 
+ *
  * @return Color product of color and multiplier
  */
 COLORREF ApplyMultiplierToColor ( _In_ const COLORREF &color,
                                   _In_ const float &multiplier )
 {
-    uint16_t red   = static_cast<uint16_t>( GetRValue( color ) * multiplier );
-    uint16_t blue  = static_cast<uint16_t>( GetBValue( color ) * multiplier );
-    uint16_t green = static_cast<uint16_t>( GetGValue( color ) * multiplier );
+    uint32_t red   = static_cast<uint32_t>( GetRValue( color ) * multiplier );
+    uint32_t blue  = static_cast<uint32_t>( GetBValue( color ) * multiplier );
+    uint32_t green = static_cast<uint32_t>( GetGValue( color ) * multiplier );
 
     return RGB( red, blue, green );
 }
@@ -35,35 +35,43 @@ COLORREF ApplyMultiplierToColor ( _In_ const COLORREF &color,
 /**
  * @brief Calculates final color of point, taking reflectiveness and reflection
  * modifiers into account
- * 
+ *
  * @param r - Red after light calculations
  * @param g - Green after light caluclations
  * @param b - Blue after light calculations
  * @param reflected_color - Color from inverted ray of reflection
  * @param reflectiveness - Reflectiveness of the sphere where the point exists
- * 
+ *
  * @return
  */
-COLORREF CalculateFinalColor ( uint16_t &r,
-                               uint16_t &g,
-                               uint16_t &b,
+COLORREF CalculateFinalColor ( uint32_t &r,
+                               uint32_t &g,
+                               uint32_t &b,
+                               COLORREF &lit_color,
                                COLORREF &reflected_color,
                                float &reflectiveness )
 {
-    COLORREF color_product = ApplyMultiplierToColor( reflected_color, reflectiveness);
+    float lit_color_multiplier = ( 1 - reflectiveness );
 
-    uint16_t reflected_r =
-        static_cast<uint16_t>( GetRValue( reflected_color ) * reflectiveness );
-    uint16_t reflected_g =
-        static_cast<uint16_t>( GetGValue( reflected_color ) * reflectiveness );
-    uint16_t reflected_b =
-        static_cast<uint16_t>( GetBValue( reflected_color ) * reflectiveness );
+	// TODO: fix this error fu gavno
+    uint32_t rr = static_cast<uint32_t>(GetRValue( lit_color ));
+    uint32_t gg = static_cast<uint32_t>(GetGValue( lit_color ));
+    uint32_t bb = static_cast<uint32_t>(GetBValue( lit_color ));
 
-    return RGB( ClampColor( r * ( 1 - reflectiveness ) + ( reflected_r ) ),
-                ClampColor( g * ( 1 - reflectiveness ) + ( reflected_g ) ),
-                ClampColor( b * ( 1 - reflectiveness ) + ( reflected_b ) ) );
+
+    uint32_t reflected_r =
+        static_cast<uint32_t>( GetRValue( reflected_color ) * reflectiveness );
+    uint32_t reflected_g =
+        static_cast<uint32_t>( GetGValue( reflected_color ) * reflectiveness );
+    uint32_t reflected_b =
+        static_cast<uint32_t>( GetBValue( reflected_color ) * reflectiveness );
+
+    return RGB(
+        ClampColor( ClampColor( r * lit_color_multiplier ) + ( reflected_r ) ),
+        ClampColor( ClampColor( g * lit_color_multiplier ) + ( reflected_g ) ),
+        ClampColor( ClampColor( b * lit_color_multiplier )
+                    + ( reflected_b ) ) );
 }
-
 
 /**
  * @brief Sets pixel at offset to color
