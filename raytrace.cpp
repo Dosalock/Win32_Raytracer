@@ -69,15 +69,15 @@ void CreateScene ( Sphere *scene, Light *lights )
     scene[3].raidus_squared = scene[3].radius * scene[3].radius;
 
     lights[0].type      = lights->AMBIENT;
-    lights[0].intensity = 0.15;
-    // lights[0].pos = { 0,0,0 }; //prettysure this is useless
+    lights[0].intensity = 0.2;
+    lights[0].pos = { 0,0,0 }; //prettysure this is useless
 
     lights[1].type      = lights->POINT;
-    lights[1].intensity = 0.55;
+    lights[1].intensity = 0.6;
     lights[1].pos       = { 2, 1, 0 };
 
     lights[2].type      = lights->DIRECTIONAL;
-    lights[2].intensity = 0.15;
+    lights[2].intensity = 0.2;
     lights[2].pos       = { 1, 4, 4 };
 }
 

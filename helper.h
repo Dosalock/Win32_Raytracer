@@ -49,15 +49,15 @@ COLORREF CalculateFinalColor ( COLORREF &base_color,
                                 base_color_reflectiveness_multiplier );*/
     uint32_t uint8_max = static_cast<uint32_t>( UINT8_MAX );
     uint32_t uint8_min = 0;
-	uint32_t r = GetRValue( reflected_color ) * reflectiveness; 
-	uint32_t g = GetGValue( reflected_color ) * reflectiveness; 
-	uint32_t b = GetBValue( reflected_color ) * reflectiveness;
+	uint32_t r = static_cast<uint32_t>(GetRValue( reflected_color )) * reflectiveness; 
+	uint32_t g = static_cast<uint32_t>(GetGValue( reflected_color )) * reflectiveness; 
+	uint32_t b = static_cast<uint32_t>(GetBValue( reflected_color )) * reflectiveness;
 	r = std::clamp(r,uint8_min,uint8_max);
 	g = std::clamp(g,uint8_min,uint8_max);
 	b = std::clamp(b,uint8_min,uint8_max);
-    uint32_t lit_r = GetRValue( base_color ) *  1 - reflectiveness;
-	uint32_t lit_g = GetGValue( base_color ) *  1 - reflectiveness;
-	uint32_t lit_b = GetBValue( base_color ) *  1 - reflectiveness;
+    uint32_t lit_r = static_cast<uint32_t>(GetRValue( base_color )) *  (1 - reflectiveness);
+	uint32_t lit_g = static_cast<uint32_t>(GetGValue( base_color )) *  (1 - reflectiveness);
+	uint32_t lit_b = static_cast<uint32_t>(GetBValue( base_color )) *  (1 - reflectiveness);
     return 	RGB(  
 				std::clamp( lit_r + r,
                             static_cast<uint32_t>( 0 ),
