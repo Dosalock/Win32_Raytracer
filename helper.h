@@ -1,6 +1,17 @@
+#ifndef __HELPER_H__
+#define __HELPER_H__
 #pragma once
+
+struct WideColor
+{
+    uint32_t red;
+    uint32_t green;
+    uint32_t blue;
+};
+
 /*---------------------Includes---------------------------*/
 #include <Windows.h>
+#include <algorithm>
 
 /**
  * @brief Clamps color channel between 0 and 255
@@ -9,9 +20,12 @@
  *
  * @return Returns a uint16_t color channel thats been clamped
  */
-static uint32_t ClampColor ( uint32_t  color )
+inline COLORREF ClampColor ( WideColor color )
 {
-    return max( 0, min( 255, color ) );
+    uint8_t red   = std::clamp( color.red, 0u, 255u );
+    uint8_t green = std::clamp( color.green, 0u, 255u );
+    uint8_t blue  = std::clamp( color.blue, 0u, 255u );
+    return RGB( red, green, blue );
 }
 
 /**
@@ -22,14 +36,14 @@ static uint32_t ClampColor ( uint32_t  color )
  *
  * @return Color product of color and multiplier
  */
-COLORREF ApplyMultiplierToColor ( _In_ const COLORREF &color,
-                                  _In_ const float &multiplier )
+inline WideColor ApplyMultiplierToColor ( _In_ const COLORREF &color,
+                                          _In_ const float &multiplier )
 {
     uint32_t red   = static_cast<uint32_t>( GetRValue( color ) * multiplier );
-    uint32_t blue  = static_cast<uint32_t>( GetBValue( color ) * multiplier );
     uint32_t green = static_cast<uint32_t>( GetGValue( color ) * multiplier );
+    uint32_t blue  = static_cast<uint32_t>( GetBValue( color ) * multiplier );
 
-    return RGB( red, blue, green );
+    return WideColor( red, green, blue );
 }
 
 /**
@@ -44,33 +58,29 @@ COLORREF ApplyMultiplierToColor ( _In_ const COLORREF &color,
  *
  * @return
  */
-COLORREF CalculateFinalColor ( uint32_t &r,
-                               uint32_t &g,
-                               uint32_t &b,
-                               COLORREF &lit_color,
-                               COLORREF &reflected_color,
-                               float &reflectiveness )
+inline WideColor CalculateFinalColor ( _In_ const WideColor &lit_color,
+                                       _In_ const WideColor &reflected_color,
+                                       _In_ const float &reflectiveness )
 {
-    float lit_color_multiplier = ( 1 - reflectiveness );
+    float lit_multiplier = ( 1.0f - reflectiveness );
 
-	// TODO: fix this error fu gavno
-    uint32_t rr = static_cast<uint32_t>(GetRValue( lit_color ));
-    uint32_t gg = static_cast<uint32_t>(GetGValue( lit_color ));
-    uint32_t bb = static_cast<uint32_t>(GetBValue( lit_color ));
+    // Calculate lit components (still unclamped)
+    uint32_t lit_r = static_cast<uint32_t>( lit_color.red * lit_multiplier );
+    uint32_t lit_g = static_cast<uint32_t>( lit_color.green * lit_multiplier );
+    uint32_t lit_b = static_cast<uint32_t>( lit_color.blue * lit_multiplier );
 
-
+    // Calculate reflected components (from reflected_color)
     uint32_t reflected_r =
-        static_cast<uint32_t>( GetRValue( reflected_color ) * reflectiveness );
+        static_cast<uint32_t>( reflected_color.red * reflectiveness );
     uint32_t reflected_g =
-        static_cast<uint32_t>( GetGValue( reflected_color ) * reflectiveness );
+        static_cast<uint32_t>( reflected_color.green * reflectiveness );
     uint32_t reflected_b =
-        static_cast<uint32_t>( GetBValue( reflected_color ) * reflectiveness );
+        static_cast<uint32_t>( reflected_color.blue * reflectiveness );
 
-    return RGB(
-        ClampColor( ClampColor( r * lit_color_multiplier ) + ( reflected_r ) ),
-        ClampColor( ClampColor( g * lit_color_multiplier ) + ( reflected_g ) ),
-        ClampColor( ClampColor( b * lit_color_multiplier )
-                    + ( reflected_b ) ) );
+    // Combine and clamp ONLY ONCE at the end
+    return WideColor( lit_r + reflected_r,
+                      lit_g + reflected_g,
+                      lit_b + reflected_b );
 }
 
 /**
@@ -80,15 +90,15 @@ COLORREF CalculateFinalColor ( uint32_t &r,
  * @param[in]     offset - Offset into pixel buffer for wanted pixel
  * @param[in]     color - Wanted color of pixel
  */
-void SetPixelToColor ( _Inout_ BYTE **p_lpv_bits,
-                       _In_ uint32_t &offset,
-                       _In_ COLORREF &color )
+inline void SetPixelToColor ( _Inout_ BYTE **p_lpv_bits,
+                              _In_ uint32_t &offset,
+                              _In_ COLORREF &color )
 {
-    ( *p_lpv_bits )[offset + 0] = static_cast<uint16_t>( GetBValue( color ) );
-    ( *p_lpv_bits )[offset + 1] = static_cast<uint16_t>( GetGValue( color ) );
-    ( *p_lpv_bits )[offset + 2] = static_cast<uint16_t>( GetRValue( color ) );
+    ( *p_lpv_bits )[offset + 0] = static_cast<uint32_t>( GetBValue( color ) );
+    ( *p_lpv_bits )[offset + 1] = static_cast<uint32_t>( GetGValue( color ) );
+    ( *p_lpv_bits )[offset + 2] = static_cast<uint32_t>( GetRValue( color ) );
     ( *p_lpv_bits )[offset + 3] = 255;
-}
+};
 
 /*------------Template Declarations---------------*/
 template<typename T>
@@ -113,3 +123,5 @@ bool IsInBounds ( const ValueType &value,
     // Comparison logic will go here
     return !( value < low ) && ( value < high );
 }
+
+#endif // !__HELPER_H__

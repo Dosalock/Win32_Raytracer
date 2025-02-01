@@ -8,11 +8,12 @@
  *
  ******************************************************************************/
 #pragma once
-
+#ifndef __RAYTRACE_H__
+#define __RAYTRACE_H__
 
 /*------------------Includes---------------------*/
 #include "raystructs.h"
-
+#include "helper.h"
 /*------------Variable Declarations---------------*/
 
 
@@ -117,7 +118,7 @@ Vect3D CanvasToViewport ( _In_ uint16_t x,
  *
  * @return Color of point direction_from_origin from point
  */
-COLORREF TraceRay ( _In_ Vect3D origin,
+WideColor TraceRay ( _In_ Vect3D origin,
                     _In_ Vect3D destination,
                     _In_ float t_min,
                     _In_ float t_max,
@@ -144,4 +145,4 @@ Intersection ClosestIntersection ( _In_ Vect3D origin,
                                    _In_ Sphere *scene );
 
 
-
+#endif // !__RAYTRACE_H__

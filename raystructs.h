@@ -1,4 +1,3 @@
-#pragma once
 /*********************************************************************
  * @file	raystructs.h
  * @brief	Structs for raytracing
@@ -7,7 +6,9 @@
  * @author	Johan Karlsson - github.com/dosalock
  * @date	November 2024
  *********************************************************************/
-
+#pragma once
+#ifndef __RAYSTRUCTS_H__
+#define __RAYSTRUCTS_H__
 
 /*-----------------------------Includes------------------------------*/
 #include "Windows.h"
@@ -278,3 +279,5 @@ struct Intersection
     {
     }
 };
+
+#endif // !__RAYSTRUCTS_H__
