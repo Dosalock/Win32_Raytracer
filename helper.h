@@ -1,3 +1,14 @@
+/*******************************************************************************
+ *
+ *  @file      helper.h
+ *  @brief     Helper functions for color calculations etc.
+ *  @author    Johan Karlsson - github.com/dosalock
+ *  @date      02.02.2024
+ *  @copyright Copyright © [2025] [Johan Karlsson]
+ *
+ ******************************************************************************/
+
+
 #ifndef __HELPER_H__
 #define __HELPER_H__
 
@@ -83,7 +94,7 @@ inline WideColor CalculateFinalColor ( _In_ const WideColor &lit_color,
     WideColor multiplied_reflected_color =
         ApplyMultiplierToColor( reflected_color, reflectiveness );
 
-	return multiplied_lit_color + multiplied_reflected_color;
+    return multiplied_lit_color + multiplied_reflected_color;
 }
 
 /**
@@ -120,8 +131,8 @@ concept Scalar = std::is_scalar_v<T>;
  */
 template<Scalar ValueType, Scalar LowType, Scalar HighType>
 inline bool IsInBounds ( const ValueType &value,
-                  const LowType &low,
-                  const HighType &high )
+                         const LowType &low,
+                         const HighType &high )
 {
     // Comparison logic will go here
     return !( value < low ) && ( value < high );

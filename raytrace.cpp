@@ -78,10 +78,10 @@ void CreateScene ( _Out_ std::vector<Sphere> &scene,
     sphere.raidus_squared = sphere.radius * sphere.radius;
     scene.push_back( sphere );
 
-	Light light = { };
+    Light light     = { };
     light.type      = light.AMBIENT;
     light.intensity = 0.2f;
-    light.pos = { 0,0,0 }; //prettysure this is useless
+    light.pos       = { 0, 0, 0 }; // prettysure this is useless
     lights.push_back( light );
 
     light.type      = light.POINT;
@@ -93,7 +93,6 @@ void CreateScene ( _Out_ std::vector<Sphere> &scene,
     light.intensity = 0.2f;
     light.pos       = { 1, 4, 4 };
     lights.push_back( light );
-
 }
 
 float CalcLight ( _In_ const Vect3D intersection_point,
@@ -107,7 +106,7 @@ float CalcLight ( _In_ const Vect3D intersection_point,
     float t_max           = 0;
     Vect3D light_position = { };
 
-    for ( auto &light: lights )
+    for ( auto &light : lights )
     {
         if ( light.type == Light::AMBIENT )
         {
@@ -257,16 +256,16 @@ Vect3D CanvasToViewport ( _In_ const uint16_t x,
     float aspect_ratio = static_cast<float>( width ) / height;
 
     // Map x and y to the viewport, adjusting by aspect ratio
-    float fov_mod = 1;
+    float fov_mod = 1.0f;
     float viewport_x =
-        ( x - width / 2.0 ) * ( ( 1.0 * fov_mod ) / width ) * aspect_ratio;
-    float viewport_y = -( y - height / 2.0 )
-                       * ( ( 1.0 * fov_mod )
+        ( x - width / 2.0f ) * ( ( 1.0f * fov_mod ) / width ) * aspect_ratio;
+    float viewport_y = -( y - height / 2.0f )
+                       * ( ( 1.0f * fov_mod )
                            / height ); // Flip Y to match 3D space orientation
 
     return Vect3D( viewport_x,
                    viewport_y,
-                   1 ); // Z=1 for perspective projection
+                   1.0f ); // Z=1 for perspective projection
 }
 
 Intersection ClosestIntersection ( _In_ const Vect3D origin,
@@ -283,7 +282,7 @@ Intersection ClosestIntersection ( _In_ const Vect3D origin,
         direction_from_origin.dot( direction_from_origin );
 
 
-    for ( auto &sphere: scene )
+    for ( auto &sphere : scene )
     {
         float possible_t = IntersectRaySphere( origin,
                                                direction_from_origin,

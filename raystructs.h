@@ -13,7 +13,7 @@
 #include "helper.h"
 #include <Windows.h>
 #include <cmath>
-#define PI 3.14159265358979323846
+
 
 /*-----------------------------Structs-------------------------------*/
 
@@ -77,7 +77,7 @@ struct Vect3D
 
     float len ( ) const
     {
-        return sqrt( x * x + y * y + z * z );
+        return sqrtf( x * x + y * y + z * z );
     }
 
     Vect3D norm ( ) const
@@ -100,15 +100,15 @@ struct Sphere
     Vect3D center;
     float radius;
     WideColor color;
-    int specularity;
+    uint32_t specularity;
     float reflective;
     float raidus_squared;
 
     Sphere ( Vect3D center    = { },
-             float radius     = 0,
+             float radius     = 0.0f,
              WideColor color  = { 0, 0, 0 },
-             int specularity  = 0,
-             float reflective = 0 ) :
+             uint32_t specularity  = 0,
+             float reflective = 0.0f ) :
         center( center ),
         radius( radius ),
         color( color ),
@@ -160,7 +160,7 @@ struct Camera
 
     float DegreesToRadian ( float degrees )
     {
-        return degrees * PI / 180.0;
+        return degrees * 0.01745329252f; /* degrees * PI / 180.0f */
     }
 
     /**
@@ -172,8 +172,8 @@ struct Camera
     Vect3D RotateYaw ( Vect3D direction, float yaw )
     {
         float rad  = DegreesToRadian( yaw );
-        float cosY = cos( rad );
-        float sinY = sin( rad );
+        float cosY = cosf( rad );
+        float sinY = sinf( rad );
 
         return Vect3D( direction.x * cosY + direction.z * sinY,
                        direction.y,
@@ -189,8 +189,8 @@ struct Camera
     Vect3D RotatePitch ( Vect3D direction, float pitch )
     {
         float rad  = DegreesToRadian( pitch );
-        float cosX = cos( rad );
-        float sinX = sin( rad );
+        float cosX = cosf( rad );
+        float sinX = sinf( rad );
 
         return Vect3D( direction.x,
                        direction.y * cosX - direction.z * sinX,
@@ -206,8 +206,8 @@ struct Camera
     Vect3D RotateRoll ( Vect3D direction, float roll )
     {
         float rad  = DegreesToRadian( roll );
-        float cosZ = cos( rad );
-        float sinZ = sin( rad );
+        float cosZ = cosf( rad );
+        float sinZ = sinf( rad );
 
         return Vect3D( direction.x * cosZ - direction.y * sinZ,
                        direction.x * sinZ + direction.y * cosZ,
@@ -232,10 +232,10 @@ struct Camera
     {
         float rPitch   = DegreesToRadian( pitch );
         float rYaw     = DegreesToRadian( yaw );
-        float cosPitch = cos( rPitch );
-        float sinPitch = sin( rPitch );
-        float cosYaw   = cos( rYaw );
-        float sinYaw   = sin( rYaw );
+        float cosPitch = cosf( rPitch );
+        float sinPitch = sinf( rPitch );
+        float cosYaw   = cosf( rYaw );
+        float sinYaw   = sinf( rYaw );
 
         return Vect3D( cosPitch * sinYaw, sinPitch, cosPitch * cosYaw ).norm( );
     }
