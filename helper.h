@@ -1,17 +1,32 @@
 #ifndef __HELPER_H__
 #define __HELPER_H__
-#pragma once
+
+
+/*---------------------Includes---------------------------*/
+#include <Windows.h>
+#include <algorithm>
+#include <cstdint>
 
 struct WideColor
 {
     uint32_t red;
     uint32_t green;
     uint32_t blue;
-};
 
-/*---------------------Includes---------------------------*/
-#include <Windows.h>
-#include <algorithm>
+    WideColor operator+ ( const WideColor &other ) const
+    {
+        return WideColor( red + other.red,
+                          green + other.green,
+                          blue + other.blue );
+    }
+
+    WideColor operator- ( const WideColor &other ) const
+    {
+        return WideColor( red - other.red,
+                          green - other.green,
+                          blue - other.blue );
+    }
+};
 
 /**
  * @brief Clamps color channel between 0 and 255
@@ -36,23 +51,21 @@ inline COLORREF ClampColor ( WideColor color )
  *
  * @return Color product of color and multiplier
  */
-inline WideColor ApplyMultiplierToColor ( _In_ const COLORREF &color,
+inline WideColor ApplyMultiplierToColor ( _In_ const WideColor &color,
                                           _In_ const float &multiplier )
 {
-    uint32_t red   = static_cast<uint32_t>( GetRValue( color ) * multiplier );
-    uint32_t green = static_cast<uint32_t>( GetGValue( color ) * multiplier );
-    uint32_t blue  = static_cast<uint32_t>( GetBValue( color ) * multiplier );
+    uint32_t red   = static_cast<uint32_t>( color.red * multiplier );
+    uint32_t green = static_cast<uint32_t>( color.green * multiplier );
+    uint32_t blue  = static_cast<uint32_t>( color.blue * multiplier );
 
-    return WideColor( red, green, blue );
+    return { red, green, blue };
 }
 
 /**
  * @brief Calculates final color of point, taking reflectiveness and reflection
  * modifiers into account
  *
- * @param r - Red after light calculations
- * @param g - Green after light caluclations
- * @param b - Blue after light calculations
+ * @param lit_color - Base color after light calculations
  * @param reflected_color - Color from inverted ray of reflection
  * @param reflectiveness - Reflectiveness of the sphere where the point exists
  *
@@ -64,23 +77,13 @@ inline WideColor CalculateFinalColor ( _In_ const WideColor &lit_color,
 {
     float lit_multiplier = ( 1.0f - reflectiveness );
 
-    // Calculate lit components (still unclamped)
-    uint32_t lit_r = static_cast<uint32_t>( lit_color.red * lit_multiplier );
-    uint32_t lit_g = static_cast<uint32_t>( lit_color.green * lit_multiplier );
-    uint32_t lit_b = static_cast<uint32_t>( lit_color.blue * lit_multiplier );
+    /* Calculate components */
+    WideColor multiplied_lit_color =
+        ApplyMultiplierToColor( lit_color, lit_multiplier );
+    WideColor multiplied_reflected_color =
+        ApplyMultiplierToColor( reflected_color, reflectiveness );
 
-    // Calculate reflected components (from reflected_color)
-    uint32_t reflected_r =
-        static_cast<uint32_t>( reflected_color.red * reflectiveness );
-    uint32_t reflected_g =
-        static_cast<uint32_t>( reflected_color.green * reflectiveness );
-    uint32_t reflected_b =
-        static_cast<uint32_t>( reflected_color.blue * reflectiveness );
-
-    // Combine and clamp ONLY ONCE at the end
-    return WideColor( lit_r + reflected_r,
-                      lit_g + reflected_g,
-                      lit_b + reflected_b );
+	return multiplied_lit_color + multiplied_reflected_color;
 }
 
 /**
@@ -91,8 +94,8 @@ inline WideColor CalculateFinalColor ( _In_ const WideColor &lit_color,
  * @param[in]     color - Wanted color of pixel
  */
 inline void SetPixelToColor ( _Inout_ BYTE **p_lpv_bits,
-                              _In_ uint32_t &offset,
-                              _In_ COLORREF &color )
+                              _In_ const uint32_t &offset,
+                              _In_ const COLORREF &color )
 {
     ( *p_lpv_bits )[offset + 0] = static_cast<uint32_t>( GetBValue( color ) );
     ( *p_lpv_bits )[offset + 1] = static_cast<uint32_t>( GetGValue( color ) );
@@ -116,7 +119,7 @@ concept Scalar = std::is_scalar_v<T>;
  * @return
  */
 template<Scalar ValueType, Scalar LowType, Scalar HighType>
-bool IsInBounds ( const ValueType &value,
+inline bool IsInBounds ( const ValueType &value,
                   const LowType &low,
                   const HighType &high )
 {

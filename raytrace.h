@@ -7,13 +7,12 @@
  *  @copyright Copyright © [2024] [Johan Karlsson]
  *
  ******************************************************************************/
-#pragma once
 #ifndef __RAYTRACE_H__
 #define __RAYTRACE_H__
 
 /*------------------Includes---------------------*/
-#include "raystructs.h"
 #include "helper.h"
+#include "raystructs.h"
 /*------------Variable Declarations---------------*/
 
 
@@ -25,7 +24,8 @@
  *  @param[in] sphere_normal - The normal
  *  @return - The reflected ray
  */
-Vect3D ReflectRay ( Vect3D ray_to_reflect, Vect3D sphere_normal );
+Vect3D ReflectRay ( _In_ const Vect3D ray_to_reflect,
+                    _In_ const Vect3D sphere_normal );
 
 
 /**
@@ -44,10 +44,10 @@ void CreateScene ( Sphere *scene, Light *lights );
  * @param[in] sphere_specularity - Specularity value of object
  * @return Float - Intensity multiplier
  */
-float CalcLight ( _In_ Vect3D intersection_point,
-                  _In_ Vect3D normalized_sphere_vector,
-                  _In_ Vect3D point_to_camera,
-                  _In_ uint32_t sphere_specularity,
+float CalcLight ( _In_ const Vect3D intersection_point,
+                  _In_ const Vect3D normalized_sphere_vector,
+                  _In_ const Vect3D point_to_camera,
+                  _In_ const uint32_t sphere_specularity,
                   _In_ Sphere *scene,
                   _In_ Light *lights );
 
@@ -61,8 +61,8 @@ float CalcLight ( _In_ Vect3D intersection_point,
  * @param[in]     lights - Pointer to scene lights
  */
 void Draw ( _Inout_ BYTE **p_lpv_bits,
-            _In_ uint16_t width,
-            _In_ uint16_t height,
+            _In_ const uint16_t width,
+            _In_ const uint16_t height,
             _In_ Camera camera,
             _In_ Sphere *scene,
             _In_ Light *lights );
@@ -75,7 +75,7 @@ void Draw ( _Inout_ BYTE **p_lpv_bits,
  */
 void Init ( _Inout_ BYTE **p_lpv_bits,
             _Inout_ HBITMAP *p_h_bitmap,
-            _In_ RECT *window );
+            _In_ const RECT *window );
 
 
 /**
@@ -87,10 +87,10 @@ void Init ( _Inout_ BYTE **p_lpv_bits,
  * @return  Root of possible point,
  *			INFINITY if no points found
  */
-float IntersectRaySphere ( _In_ Vect3D origin,
-                           _In_ Vect3D direction_from_origin,
-                           _In_ Sphere sphere,
-                           _In_ float direction_from_origin_dot_product );
+float IntersectRaySphere ( _In_ const Vect3D origin,
+                           _In_ const Vect3D direction_from_origin,
+                           _In_ const Sphere sphere,
+                           _In_ const float direction_from_origin_dot_product );
 
 
 /**
@@ -101,10 +101,10 @@ float IntersectRaySphere ( _In_ Vect3D origin,
  * @param[in] height - Viewport height
  * @return Translated canvas coordinate of specified pixel
  */
-Vect3D CanvasToViewport ( _In_ uint16_t x,
-                          _In_ uint16_t y,
-                          _In_ uint16_t width,
-                          _In_ uint16_t height );
+Vect3D CanvasToViewport ( _In_ const uint16_t x,
+                          _In_ const uint16_t y,
+                          _In_ const uint16_t width,
+                          _In_ const uint16_t height );
 
 
 /**
@@ -118,13 +118,13 @@ Vect3D CanvasToViewport ( _In_ uint16_t x,
  *
  * @return Color of point direction_from_origin from point
  */
-WideColor TraceRay ( _In_ Vect3D origin,
-                    _In_ Vect3D destination,
-                    _In_ float t_min,
-                    _In_ float t_max,
-                    _In_ uint8_t recursion_depth,
-                    _In_ Sphere *scene,
-                    _In_ Light *lights );
+WideColor TraceRay ( _In_ const Vect3D origin,
+                     _In_ const Vect3D destination,
+                     _In_ const float t_min,
+                     _In_ const float t_max,
+                     _In_ const uint8_t recursion_depth,
+                     _In_ Sphere *scene,
+                     _In_ Light *lights );
 
 
 /**
@@ -138,10 +138,10 @@ WideColor TraceRay ( _In_ Vect3D origin,
  *
  * @return Intersection with the closest point and intersecting sphere
  */
-Intersection ClosestIntersection ( _In_ Vect3D origin,
-                                   _In_ Vect3D direction_from_origin,
-                                   _In_ float t_min,
-                                   _In_ float t_max,
+Intersection ClosestIntersection ( _In_ const Vect3D origin,
+                                   _In_ const Vect3D direction_from_origin,
+                                   _In_ const float t_min,
+                                   _In_ const float t_max,
                                    _In_ Sphere *scene );
 
 

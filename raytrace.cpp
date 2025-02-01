@@ -26,12 +26,15 @@
  * @param closest_t - Current best root
  * @return
  */
-bool IsBetterRoot ( float root, float t_min, float t_max, float closest_t )
+bool IsBetterRoot ( _In_ const float root, 
+					_In_ const float t_min, 
+					_In_ const float t_max, 
+					_In_ const float closest_t )
 {
     return IsInBounds( root, t_min, t_max ) && root < closest_t;
 }
 
-Vect3D ReflectRay ( Vect3D ray_to_reflect, Vect3D sphere_normal )
+Vect3D ReflectRay ( _In_ const Vect3D ray_to_reflect, _In_ const Vect3D sphere_normal )
 {
     return ( ( sphere_normal * ( sphere_normal.dot( ray_to_reflect ) ) ) * 2 )
            - ray_to_reflect;
@@ -41,28 +44,28 @@ void CreateScene ( Sphere *scene, Light *lights )
 {
     scene[0].center         = Vect3D( 0, -1, 3 );
     scene[0].radius         = 1;
-    scene[0].color          = RGB( 255, 0, 0 );
+    scene[0].color          = WideColor(255, 0, 0 );
     scene[0].specularity    = 500;
     scene[0].reflective     = 0.2;
     scene[0].raidus_squared = scene[0].radius * scene[0].radius;
 
     scene[1].center         = Vect3D( 2, 0, 4 );
     scene[1].radius         = 1;
-    scene[1].color          = RGB( 0, 0, 255 );
+    scene[1].color          = WideColor( 0, 0, 255 );
     scene[1].specularity    = 500;
     scene[1].reflective     = 0.3;
     scene[1].raidus_squared = scene[1].radius * scene[1].radius;
 
     scene[2].center         = Vect3D( -2, 0, 4 );
     scene[2].radius         = 1;
-    scene[2].color          = RGB( 0, 255, 0 );
+    scene[2].color          = WideColor( 0, 255, 0 );
     scene[2].specularity    = 10;
     scene[2].reflective     = 0.4;
     scene[2].raidus_squared = scene[2].radius * scene[2].radius;
 
     scene[3].center         = Vect3D( 0, -5001, 0 );
     scene[3].radius         = 5000;
-    scene[3].color          = RGB( 255, 255, 0 );
+    scene[3].color          = WideColor( 255, 255, 0 );
     scene[3].specularity    = 1000;
     scene[3].reflective     = 0.5;
     scene[3].raidus_squared = scene[3].radius * scene[3].radius;
@@ -80,12 +83,12 @@ void CreateScene ( Sphere *scene, Light *lights )
     lights[2].pos       = { 1, 4, 4 };
 }
 
-float CalcLight ( Vect3D intersection_point,
-                  Vect3D normalized_sphere_vector,
-                  Vect3D point_to_camera,
-                  uint32_t sphere_specularity,
-                  Sphere *scene,
-                  Light *lights )
+float CalcLight ( _In_ const Vect3D intersection_point,
+                  _In_ const Vect3D normalized_sphere_vector,
+                  _In_ const Vect3D point_to_camera,
+                  _In_ const uint32_t sphere_specularity,
+                  _In_ Sphere *scene,
+                  _In_ Light *lights )
 {
     float intensity       = 0.0;
     float t_max           = 0;
@@ -96,7 +99,10 @@ float CalcLight ( Vect3D intersection_point,
         if ( lights[i].type == lights->AMBIENT )
         {
             intensity += lights[i].intensity;
-            if ( intensity >= 1.0f ) return 1.0f;
+            if ( intensity >= 1.0f )
+            {
+                return 1.0f;
+            }
         }
         else
         {
@@ -134,7 +140,7 @@ float CalcLight ( Vect3D intersection_point,
                              / ( normalized_sphere_vector.len( )
                                  * light_position.len( ) );
             }
-         
+
             if ( sphere_specularity != -1 )
             {
                 Vect3D sphere_to_light =
@@ -158,7 +164,7 @@ float CalcLight ( Vect3D intersection_point,
     return intensity;
 }
 
-void Init ( BYTE **pLpvBits, HBITMAP *pHBitmap, RECT *window )
+void Init ( _Inout_ BYTE **pLpvBits, _Inout_ HBITMAP *pHBitmap, _In_ const RECT *window )
 {
     int width  = ( *window ).right;
     int height = ( *window ).bottom;
@@ -192,10 +198,10 @@ void Init ( BYTE **pLpvBits, HBITMAP *pHBitmap, RECT *window )
     memset( *pLpvBits, 0, width * height * 4 );
 }
 
-float IntersectRaySphere ( _In_ Vect3D origin,
-                           _In_ Vect3D direction_from_origin,
-                           _In_ Sphere sphere,
-                           _In_ float direction_from_origin_dot_product )
+float IntersectRaySphere ( _In_ const Vect3D origin,
+                           _In_ const Vect3D direction_from_origin,
+                           _In_ const Sphere sphere,
+                           _In_ const float direction_from_origin_dot_product )
 {
     /**
      * This is a simplified quadratic root equation
@@ -227,10 +233,10 @@ float IntersectRaySphere ( _In_ Vect3D origin,
     return t;
 }
 
-Vect3D CanvasToViewport ( _In_ uint16_t x,
-                          _In_ uint16_t y,
-                          _In_ uint16_t width,
-                          _In_ uint16_t height )
+Vect3D CanvasToViewport ( _In_ const uint16_t x,
+                          _In_ const uint16_t y,
+                          _In_ const uint16_t width,
+                          _In_ const uint16_t height )
 {
     // for simplicity : Vw = Vh = d = 1    approx 53 fov
     float aspect_ratio = static_cast<float>( width ) / height;
@@ -248,10 +254,10 @@ Vect3D CanvasToViewport ( _In_ uint16_t x,
                    1 ); // Z=1 for perspective projection
 }
 
-Intersection ClosestIntersection ( _In_ Vect3D origin,
-                                   _In_ Vect3D direction_from_origin,
-                                   _In_ float t_min,
-                                   _In_ float t_max,
+Intersection ClosestIntersection ( _In_ const Vect3D origin,
+                                   _In_ const Vect3D direction_from_origin,
+                                   _In_ const float t_min,
+                                   _In_ const float t_max,
                                    _In_ Sphere *scene )
 {
     Sphere *closest_sphere = NULL;
@@ -278,13 +284,13 @@ Intersection ClosestIntersection ( _In_ Vect3D origin,
     return Intersection( closest_sphere, closest_point_t );
 }
 
-WideColor TraceRay ( _In_ Vect3D origin,
-                    _In_ Vect3D destination,
-                    _In_ float t_min,
-                    _In_ float t_max,
-                    _In_ uint8_t recursion_depth,
-                    _In_ Sphere *scene,
-                    _In_ Light *lights )
+WideColor TraceRay ( _In_ const Vect3D origin,
+                     _In_ const Vect3D destination,
+                     _In_ const float t_min,
+                     _In_ const float t_max,
+                     _In_ const uint8_t recursion_depth,
+                     _In_ Sphere *scene,
+                     _In_ Light *lights )
 {
     Vect3D intersection_sphere_normal = { };
     Vect3D origin_to_destination      = { };
@@ -318,8 +324,8 @@ WideColor TraceRay ( _In_ Vect3D origin,
                                                scene,
                                                lights );
 
-	WideColor lit_color =
-        ApplyMultiplierToColor( closest_sphere->color, color_lighting_modifier );
+    WideColor lit_color = ApplyMultiplierToColor( closest_sphere->color,
+                                                  color_lighting_modifier );
     /* Split colors into R, G, and B and apply lightning modifier */
     /*uint32_t red   = static_cast<uint32_t>( GetRValue( closest_sphere->color )
                                         * color_lighting_modifier );
@@ -327,9 +333,9 @@ WideColor TraceRay ( _In_ Vect3D origin,
                                             * color_lighting_modifier );
     uint32_t blue  = static_cast<uint32_t>( GetBValue( closest_sphere->color )
                                          * color_lighting_modifier );*/
-	//red = std::clamp(red,0u,255u);
-	//green = std::clamp(green,0u,255u);
-	//blue = std::clamp(blue,0u,255u);
+    // red = std::clamp(red,0u,255u);
+    // green = std::clamp(green,0u,255u);
+    // blue = std::clamp(blue,0u,255u);
 
     float sphere_reflectivness = closest_sphere->reflective;
 
@@ -344,24 +350,23 @@ WideColor TraceRay ( _In_ Vect3D origin,
 
     /* Calculate color reflection */
     WideColor reflected_color = TraceRay( origin_to_destination,
-                                         reflected_ray,
-                                         t_min,
-                                         t_max,
-                                         recursion_depth - 1,
-                                         scene,
-                                         lights );
-	
-    	
-	WideColor final_color = CalculateFinalColor( lit_color,
-                                                reflected_color,
-                                                sphere_reflectivness ); 
+                                          reflected_ray,
+                                          t_min,
+                                          t_max,
+                                          recursion_depth - 1,
+                                          scene,
+                                          lights );
+
+
+    WideColor final_color =
+        CalculateFinalColor( lit_color, reflected_color, sphere_reflectivness );
 
     return final_color;
 }
 
 void Draw ( _Inout_ BYTE **p_lpv_bits,
-            _In_ uint16_t width,
-            _In_ uint16_t height,
+            _In_ const uint16_t width,
+            _In_ const uint16_t height,
             _In_ Camera camera,
             _In_ Sphere *scene,
             _In_ Light *lights )
@@ -384,14 +389,14 @@ void Draw ( _Inout_ BYTE **p_lpv_bits,
 
 
             WideColor wide_color = TraceRay( camera.position,
-                                       translated_camera_point,
-                                       t_min,
-                                       t_max,
-                                       recursionDepth,
-                                       scene,
-                                       lights );
+                                             translated_camera_point,
+                                             t_min,
+                                             t_max,
+                                             recursionDepth,
+                                             scene,
+                                             lights );
 
-			COLORREF final_pixel_color = ClampColor( wide_color );
+            COLORREF final_pixel_color = ClampColor( wide_color );
             /* canvas coordinates to memory pointer offset */
             uint32_t canvas_coordinate_offset =
                 ( y * width + x ) * bytes_in_a_pixel;
@@ -407,7 +412,9 @@ void Draw ( _Inout_ BYTE **p_lpv_bits,
                              canvas_coordinate_lower_bound,
                              canvas_coordinate_upper_bound ) )
             {
-                SetPixelToColor( p_lpv_bits, canvas_coordinate_offset, final_pixel_color );
+                SetPixelToColor( p_lpv_bits,
+                                 canvas_coordinate_offset,
+                                 final_pixel_color );
             }
         }
     }

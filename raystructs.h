@@ -6,12 +6,12 @@
  * @author	Johan Karlsson - github.com/dosalock
  * @date	November 2024
  *********************************************************************/
-#pragma once
 #ifndef __RAYSTRUCTS_H__
 #define __RAYSTRUCTS_H__
 
 /*-----------------------------Includes------------------------------*/
-#include "Windows.h"
+#include "helper.h"
+#include <Windows.h>
 #include <cmath>
 #define PI 3.14159265358979323846
 
@@ -99,14 +99,14 @@ struct Sphere
 {
     Vect3D center;
     float radius;
-    COLORREF color;
+    WideColor color;
     int specularity;
     float reflective;
     float raidus_squared;
 
     Sphere ( Vect3D center    = { },
              float radius     = 0,
-             COLORREF color   = RGB( 0, 0, 0 ),
+             WideColor color  = { 0, 0, 0 },
              int specularity  = 0,
              float reflective = 0 ) :
         center( center ),
