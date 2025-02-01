@@ -13,6 +13,7 @@
 #include "main.h"
 #include <chrono>
 #include <unordered_map>
+#include <vector>
 
 /*------------Varible initialzation--------------*/
 #define clock std::chrono::high_resolution_clock
@@ -24,15 +25,15 @@ RECT window                         = { };
 Camera cam                          = { };
 int height                          = 0;
 int width                           = 0;
-std::chrono::time_point clock_start = std::chrono::steady_clock( ).now( );
 bool camera_is_moving               = false;
 bool drawing_frame                  = false;
 float delta_time                    = 0.0f;
 float move_speed                    = 0.1f;
 float rotation_speed                = 2.0f;
 long long nanoseconds_per_frame     = 33'000'000;
-Sphere scene[4]                     = { };
-Light lights[3]                     = { };
+std::vector<Sphere> scene           = { };
+std::vector<Light> lights           = { };
+std::chrono::time_point clock_start = std::chrono::steady_clock( ).now( );
 std::unordered_map<int, bool> key_states;
 
 

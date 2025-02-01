@@ -41,65 +41,77 @@ Vect3D ReflectRay ( _In_ const Vect3D ray_to_reflect,
            - ray_to_reflect;
 }
 
-void CreateScene ( Sphere *scene, Light *lights )
+void CreateScene ( _Out_ std::vector<Sphere> &scene,
+                   _Out_ std::vector<Light> &lights )
 {
-    scene[0].center         = Vect3D( 0, -1, 3 );
-    scene[0].radius         = 1;
-    scene[0].color          = WideColor( 255, 0, 0 );
-    scene[0].specularity    = 500;
-    scene[0].reflective     = 0.2;
-    scene[0].raidus_squared = scene[0].radius * scene[0].radius;
+    Sphere sphere = { };
 
-    scene[1].center         = Vect3D( 2, 0, 4 );
-    scene[1].radius         = 1;
-    scene[1].color          = WideColor( 0, 0, 255 );
-    scene[1].specularity    = 500;
-    scene[1].reflective     = 0.3;
-    scene[1].raidus_squared = scene[1].radius * scene[1].radius;
+    sphere.center         = Vect3D( 0, -1, 3 );
+    sphere.radius         = 1.0f;
+    sphere.color          = WideColor( 255, 0, 0 );
+    sphere.specularity    = 500;
+    sphere.reflective     = 0.2f;
+    sphere.raidus_squared = sphere.radius * sphere.radius;
+    scene.push_back( sphere );
 
-    scene[2].center         = Vect3D( -2, 0, 4 );
-    scene[2].radius         = 1;
-    scene[2].color          = WideColor( 0, 255, 0 );
-    scene[2].specularity    = 10;
-    scene[2].reflective     = 0.4;
-    scene[2].raidus_squared = scene[2].radius * scene[2].radius;
+    sphere.center         = Vect3D( 2, 0, 4 );
+    sphere.radius         = 1;
+    sphere.color          = WideColor( 0, 0, 255 );
+    sphere.specularity    = 500;
+    sphere.reflective     = 0.3;
+    sphere.raidus_squared = sphere.radius * sphere.radius;
+    scene.push_back( sphere );
 
-    scene[3].center         = Vect3D( 0, -5001, 0 );
-    scene[3].radius         = 5000;
-    scene[3].color          = WideColor( 255, 255, 0 );
-    scene[3].specularity    = 1000;
-    scene[3].reflective     = 0.5;
-    scene[3].raidus_squared = scene[3].radius * scene[3].radius;
+    sphere.center         = Vect3D( -2, 0, 4 );
+    sphere.radius         = 1;
+    sphere.color          = WideColor( 0, 255, 0 );
+    sphere.specularity    = 10;
+    sphere.reflective     = 0.4;
+    sphere.raidus_squared = sphere.radius * sphere.radius;
+    scene.push_back( sphere );
 
-    lights[0].type      = lights->AMBIENT;
-    lights[0].intensity = 0.2;
-    // lights[0].pos = { 0,0,0 }; //prettysure this is useless
+    sphere.center         = Vect3D( 0, -5001, 0 );
+    sphere.radius         = 5000;
+    sphere.color          = WideColor( 255, 255, 0 );
+    sphere.specularity    = 1000;
+    sphere.reflective     = 0.5;
+    sphere.raidus_squared = sphere.radius * sphere.radius;
+    scene.push_back( sphere );
 
-    lights[1].type      = lights->POINT;
-    lights[1].intensity = 0.6;
-    lights[1].pos       = { 2, 1, 0 };
+	Light light = { };
+    light.type      = light.AMBIENT;
+    light.intensity = 0.2f;
+    light.pos = { 0,0,0 }; //prettysure this is useless
+    lights.push_back( light );
 
-    lights[2].type      = lights->DIRECTIONAL;
-    lights[2].intensity = 0.2;
-    lights[2].pos       = { 1, 4, 4 };
+    light.type      = light.POINT;
+    light.intensity = 0.6f;
+    light.pos       = { 2, 1, 0 };
+    lights.push_back( light );
+
+    light.type      = light.DIRECTIONAL;
+    light.intensity = 0.2f;
+    light.pos       = { 1, 4, 4 };
+    lights.push_back( light );
+
 }
 
 float CalcLight ( _In_ const Vect3D intersection_point,
                   _In_ const Vect3D normalized_sphere_vector,
                   _In_ const Vect3D point_to_camera,
                   _In_ const uint32_t sphere_specularity,
-                  _In_ Sphere *scene,
-                  _In_ Light *lights )
+                  _In_ std::vector<Sphere> &scene,
+                  _In_ std::vector<Light> &lights )
 {
     float intensity       = 0.0;
     float t_max           = 0;
     Vect3D light_position = { };
 
-    for ( uint32_t i = 0; i < 4; i++ )
+    for ( auto &light: lights )
     {
-        if ( lights[i].type == lights->AMBIENT )
+        if ( light.type == Light::AMBIENT )
         {
-            intensity += lights[i].intensity;
+            intensity += light.intensity;
             if ( intensity >= 1.0f )
             {
                 return 1.0f;
@@ -107,14 +119,14 @@ float CalcLight ( _In_ const Vect3D intersection_point,
         }
         else
         {
-            if ( lights[i].type == lights->POINT )
+            if ( light.type == Light::POINT )
             {
-                light_position = ( lights[i].pos - intersection_point );
+                light_position = ( light.pos - intersection_point );
                 t_max          = 1;
             }
             else
             {
-                light_position = lights[i].pos;
+                light_position = light.pos;
                 t_max          = INFINITY;
             }
 
@@ -137,7 +149,7 @@ float CalcLight ( _In_ const Vect3D intersection_point,
             /* If < it is behind */
             if ( sphere_light_alignment > 0 )
             {
-                intensity += lights[i].intensity * sphere_light_alignment
+                intensity += light.intensity * sphere_light_alignment
                              / ( normalized_sphere_vector.len( )
                                  * light_position.len( ) );
             }
@@ -153,7 +165,7 @@ float CalcLight ( _In_ const Vect3D intersection_point,
                 /* If < 0 the object is behind the camera */
                 if ( vector_alignment_to_camera > 0 )
                 {
-                    intensity += lights[i].intensity
+                    intensity += light.intensity
                                  * powf( vector_alignment_to_camera
                                              / ( sphere_to_light.len( )
                                                  * ( point_to_camera.len( ) ) ),
@@ -261,7 +273,7 @@ Intersection ClosestIntersection ( _In_ const Vect3D origin,
                                    _In_ const Vect3D direction_from_origin,
                                    _In_ const float t_min,
                                    _In_ const float t_max,
-                                   _In_ Sphere *scene )
+                                   _In_ std::vector<Sphere> &scene )
 {
     Sphere *closest_sphere = NULL;
     float closest_point_t  = INFINITY;
@@ -271,17 +283,17 @@ Intersection ClosestIntersection ( _In_ const Vect3D origin,
         direction_from_origin.dot( direction_from_origin );
 
 
-    for ( int sphere = 0; sphere < 4; sphere++ )
+    for ( auto &sphere: scene )
     {
         float possible_t = IntersectRaySphere( origin,
                                                direction_from_origin,
-                                               scene[sphere],
+                                               sphere,
                                                projection_plane_dot_product );
 
         if ( IsBetterRoot( possible_t, t_min, t_max, closest_point_t ) )
         {
             closest_point_t = possible_t;
-            closest_sphere  = const_cast<Sphere *>( &scene[sphere] );
+            closest_sphere  = const_cast<Sphere *>( &sphere );
         }
     }
     return Intersection( closest_sphere, closest_point_t );
@@ -292,8 +304,8 @@ WideColor TraceRay ( _In_ const Vect3D origin,
                      _In_ const float t_min,
                      _In_ const float t_max,
                      _In_ const uint8_t recursion_depth,
-                     _In_ Sphere *scene,
-                     _In_ Light *lights )
+                     _In_ std::vector<Sphere> &scene,
+                     _In_ std::vector<Light> &lights )
 {
     Vect3D intersection_sphere_normal = { };
     Vect3D origin_to_destination      = { };
@@ -330,7 +342,7 @@ WideColor TraceRay ( _In_ const Vect3D origin,
     WideColor lit_color = ApplyMultiplierToColor( closest_sphere->color,
                                                   color_lighting_modifier );
 
-	
+
     bool is_last_level_of_recursion = ( recursion_depth <= 0 );
     bool is_sphere_reflective       = ( closest_sphere->reflective <= 0 );
 
@@ -364,8 +376,8 @@ void Draw ( _Inout_ BYTE **p_lpv_bits,
             _In_ const uint16_t width,
             _In_ const uint16_t height,
             _In_ Camera camera,
-            _In_ Sphere *scene,
-            _In_ Light *lights )
+            _In_ std::vector<Sphere> &scene,
+            _In_ std::vector<Light> &lights )
 {
     Vect3D projection_plane_point  = { };
     Vect3D translated_camera_point = { };

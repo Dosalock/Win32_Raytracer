@@ -13,6 +13,7 @@
 /*------------------Includes---------------------*/
 #include "helper.h"
 #include "raystructs.h"
+#include <vector>
 /*------------Variable Declarations---------------*/
 
 
@@ -33,7 +34,8 @@ Vect3D ReflectRay ( _In_ const Vect3D ray_to_reflect,
  * @param[in,out] scene - Pointer to where we allocate the spheres
  * @param[in,out] lights - Pointer to where we allocate the lights
  */
-void CreateScene ( Sphere *scene, Light *lights );
+void CreateScene ( _Out_ std::vector<Sphere> &scene,
+                   _Out_ std::vector<Light> &lights );
 
 
 /**
@@ -48,8 +50,8 @@ float CalcLight ( _In_ const Vect3D intersection_point,
                   _In_ const Vect3D normalized_sphere_vector,
                   _In_ const Vect3D point_to_camera,
                   _In_ const uint32_t sphere_specularity,
-                  _In_ Sphere *scene,
-                  _In_ Light *lights );
+                  _In_ std::vector<Sphere> &scene,
+                  _In_ std::vector<Light> &lights );
 
 /**
  * @brief Main draw function, sets all the pixel values
@@ -64,8 +66,8 @@ void Draw ( _Inout_ BYTE **p_lpv_bits,
             _In_ const uint16_t width,
             _In_ const uint16_t height,
             _In_ Camera camera,
-            _In_ Sphere *scene,
-            _In_ Light *lights );
+            _In_ std::vector<Sphere> &scene,
+            _In_ std::vector<Light> &lights );
 
 /**
  * @brief Initzialises the scene, bitmap height & width etc.
@@ -123,8 +125,8 @@ WideColor TraceRay ( _In_ const Vect3D origin,
                      _In_ const float t_min,
                      _In_ const float t_max,
                      _In_ const uint8_t recursion_depth,
-                     _In_ Sphere *scene,
-                     _In_ Light *lights );
+                     _In_ std::vector<Sphere> &scene,
+                     _In_ std::vector<Light> &lights );
 
 
 /**
@@ -142,7 +144,7 @@ Intersection ClosestIntersection ( _In_ const Vect3D origin,
                                    _In_ const Vect3D direction_from_origin,
                                    _In_ const float t_min,
                                    _In_ const float t_max,
-                                   _In_ Sphere *scene );
+                                   _In_ std::vector<Sphere> &scene );
 
 
 #endif // !__RAYTRACE_H__
