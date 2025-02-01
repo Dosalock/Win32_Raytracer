@@ -26,15 +26,16 @@
  * @param closest_t - Current best root
  * @return
  */
-bool IsBetterRoot ( _In_ const float root, 
-					_In_ const float t_min, 
-					_In_ const float t_max, 
-					_In_ const float closest_t )
+bool IsBetterRoot ( _In_ const float root,
+                    _In_ const float t_min,
+                    _In_ const float t_max,
+                    _In_ const float closest_t )
 {
     return IsInBounds( root, t_min, t_max ) && root < closest_t;
 }
 
-Vect3D ReflectRay ( _In_ const Vect3D ray_to_reflect, _In_ const Vect3D sphere_normal )
+Vect3D ReflectRay ( _In_ const Vect3D ray_to_reflect,
+                    _In_ const Vect3D sphere_normal )
 {
     return ( ( sphere_normal * ( sphere_normal.dot( ray_to_reflect ) ) ) * 2 )
            - ray_to_reflect;
@@ -44,7 +45,7 @@ void CreateScene ( Sphere *scene, Light *lights )
 {
     scene[0].center         = Vect3D( 0, -1, 3 );
     scene[0].radius         = 1;
-    scene[0].color          = WideColor(255, 0, 0 );
+    scene[0].color          = WideColor( 255, 0, 0 );
     scene[0].specularity    = 500;
     scene[0].reflective     = 0.2;
     scene[0].raidus_squared = scene[0].radius * scene[0].radius;
@@ -164,7 +165,9 @@ float CalcLight ( _In_ const Vect3D intersection_point,
     return intensity;
 }
 
-void Init ( _Inout_ BYTE **pLpvBits, _Inout_ HBITMAP *pHBitmap, _In_ const RECT *window )
+void Init ( _Inout_ BYTE **pLpvBits,
+            _Inout_ HBITMAP *pHBitmap,
+            _In_ const RECT *window )
 {
     int width  = ( *window ).right;
     int height = ( *window ).bottom;
@@ -326,21 +329,13 @@ WideColor TraceRay ( _In_ const Vect3D origin,
 
     WideColor lit_color = ApplyMultiplierToColor( closest_sphere->color,
                                                   color_lighting_modifier );
-    /* Split colors into R, G, and B and apply lightning modifier */
-    /*uint32_t red   = static_cast<uint32_t>( GetRValue( closest_sphere->color )
-                                        * color_lighting_modifier );
-    uint32_t green = static_cast<uint32_t>( GetGValue( closest_sphere->color )
-                                            * color_lighting_modifier );
-    uint32_t blue  = static_cast<uint32_t>( GetBValue( closest_sphere->color )
-                                         * color_lighting_modifier );*/
-    // red = std::clamp(red,0u,255u);
-    // green = std::clamp(green,0u,255u);
-    // blue = std::clamp(blue,0u,255u);
 
-    float sphere_reflectivness = closest_sphere->reflective;
+	
+    bool is_last_level_of_recursion = ( recursion_depth <= 0 );
+    bool is_sphere_reflective       = ( closest_sphere->reflective <= 0 );
 
-    /* Return if no more reflections need to be calculated */
-    if ( recursion_depth <= 0 || sphere_reflectivness <= 0 )
+    /* Return if no reflections need to be calculated */
+    if ( is_last_level_of_recursion || is_sphere_reflective )
     {
         return lit_color;
     }
@@ -358,8 +353,9 @@ WideColor TraceRay ( _In_ const Vect3D origin,
                                           lights );
 
 
-    WideColor final_color =
-        CalculateFinalColor( lit_color, reflected_color, sphere_reflectivness );
+    WideColor final_color = CalculateFinalColor( lit_color,
+                                                 reflected_color,
+                                                 closest_sphere->reflective );
 
     return final_color;
 }
