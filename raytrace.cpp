@@ -26,10 +26,10 @@
  * @param closest_t - Current best root
  * @return
  */
-bool IsBetterRoot ( _In_ const float root,
-                    _In_ const float t_min,
-                    _In_ const float t_max,
-                    _In_ const float closest_t )
+static bool IsBetterRoot ( _In_ const float root,
+                           _In_ const float t_min,
+                           _In_ const float t_max,
+                           _In_ const float closest_t )
 {
     return IsInBounds( root, t_min, t_max ) && root < closest_t;
 }
@@ -164,11 +164,12 @@ float CalcLight ( _In_ const Vect3D intersection_point,
                 /* If < 0 the object is behind the camera */
                 if ( vector_alignment_to_camera > 0 )
                 {
-                    intensity += light.intensity
-                                 * powf( vector_alignment_to_camera
-                                             / ( sphere_to_light.len( )
-                                                 * ( point_to_camera.len( ) ) ),
-                                         sphere_specularity );
+                    intensity +=
+                        light.intensity
+                        * powf( vector_alignment_to_camera
+                                    / ( sphere_to_light.len( )
+                                        * ( point_to_camera.len( ) ) ),
+                                static_cast<float>( sphere_specularity ) );
                 }
             }
         }
@@ -207,9 +208,10 @@ void Init ( _Inout_ BYTE **pLpvBits,
                     MB_OK | MB_ICONERROR );
         exit( 1 );
     }
-
+    uint8_t pixel_data_size     = sizeof( BYTE ) * 4; /* r,g,b, and alpha */
+    uint32_t bitmap_buffer_size = width * height * pixel_data_size;
     // Initialize all pixels to black
-    memset( *pLpvBits, 0, width * height * 4 );
+    memset( *pLpvBits, 0, bitmap_buffer_size );
 }
 
 float IntersectRaySphere ( _In_ const Vect3D origin,

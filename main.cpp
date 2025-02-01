@@ -34,7 +34,7 @@ long long nanoseconds_per_frame     = 33'333'333; /* 30 fps */
 std::vector<Sphere> scene           = { };
 std::vector<Light> lights           = { };
 std::chrono::time_point clock_start = std::chrono::steady_clock( ).now( );
-std::unordered_map<int, bool> key_states;
+std::unordered_map<uint32_t, bool> key_states;
 
 
 /*-------------Function Declaration--------------*/
@@ -253,12 +253,12 @@ LRESULT CALLBACK WindowProc ( HWND hwnd,
         }
         case WM_KEYUP:
         {
-            key_states[wParam] = false;
+            key_states[static_cast<uint32_t>( wParam )] = false;
             break;
         }
         case WM_KEYDOWN:
         {
-            key_states[wParam] = true;
+            key_states[static_cast<uint32_t>( wParam )] = true;
             break;
         }
         default:

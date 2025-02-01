@@ -24,6 +24,12 @@ struct WideColor
     uint32_t green;
     uint32_t blue;
 
+	WideColor ( uint32_t red = 0, uint32_t green = 0, uint32_t blue = 0 )
+        :red( red ),
+        green( green ), blue( blue )
+    {
+    }
+
     WideColor operator+ ( const WideColor &other ) const
     {
         return WideColor( red + other.red,
@@ -46,7 +52,7 @@ struct WideColor
  *
  * @return Returns a uint16_t color channel thats been clamped
  */
-inline COLORREF ClampColor ( WideColor color )
+inline COLORREF ClampColor ( _In_ const WideColor color )
 {
     uint8_t red   = std::clamp( color.red, 0u, 255u );
     uint8_t green = std::clamp( color.green, 0u, 255u );
@@ -69,7 +75,7 @@ inline WideColor ApplyMultiplierToColor ( _In_ const WideColor &color,
     uint32_t green = static_cast<uint32_t>( color.green * multiplier );
     uint32_t blue  = static_cast<uint32_t>( color.blue * multiplier );
 
-    return { red, green, blue };
+    return WideColor( red, green, blue );
 }
 
 /**
