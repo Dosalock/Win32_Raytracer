@@ -7,71 +7,92 @@
  *  @copyright Copyright © [2024] [Johan Karlsson]
  *
  ******************************************************************************/
-#pragma once
-
+#ifndef __RAYTRACE_H__
+#define __RAYTRACE_H__
 
 /*------------------Includes---------------------*/
+#include "helper.h"
 #include "raystructs.h"
-
+#include <vector>
 /*------------Variable Declarations---------------*/
-
-
 
 
 /*------------Function Declarations---------------*/
 
 /**
- *  @brief Returns reflected ray of R from normal vector N
- *  @param[in] R - Ray that you want its reflection of
- *  @param[in] N - The normal
- *  @retval   - The reflected ray
+ *  @brief Returns a ray reflected in account with the normal
+ *  @param[in] ray_to_reflect - Ray that you want its reflection of
+ *  @param[in] sphere_normal - The normal
+ *  @return - The reflected ray
  */
-Vect3D ReflectRay ( Vect3D R, Vect3D N );
+Vect3D ReflectRay ( _In_ const Vect3D ray_to_reflect,
+                    _In_ const Vect3D sphere_normal );
 
 
 /**
  * @brief Sets positions and value of objects and lights
+ * @param[in,out] scene - Pointer to where we allocate the spheres
+ * @param[in,out] lights - Pointer to where we allocate the lights
  */
-void CreateScene ( Sphere* scene, Light *lights );
+void CreateScene ( _Out_ std::vector<Sphere> &scene,
+                   _Out_ std::vector<Light> &lights );
 
 
 /**
  * @brief Calculates how bright a point is
- * @param[in] P - Intersection
- * @param[in] N - Normalized vector from center of sphere
- * @param[in] V - Vector from point to camera
- * @param[in] s - Specularity value of object
- * @return Intensity multiplier
+ * @param[in] intersection_point - Intersection
+ * @param[in] normal_sphere_vector - Normalized vector from center of sphere
+ * @param[in] point_to_camera - Vector from point to camera
+ * @param[in] sphere_specularity - Specularity value of object
+ * @return Float - Intensity multiplier
  */
-float CalcLight ( Vect3D P, Vect3D N, Vect3D V, int s, Sphere *scene, Light *lights);
+float CalcLight ( _In_ const Vect3D intersection_point,
+                  _In_ const Vect3D normalized_sphere_vector,
+                  _In_ const Vect3D point_to_camera,
+                  _In_ const uint32_t sphere_specularity,
+                  _In_ std::vector<Sphere> &scene,
+                  _In_ std::vector<Light> &lights );
 
 /**
  * @brief Main draw function, sets all the pixel values
- * @param[in,out] pLpvBits - Pointer to buffer of viewport pixels
- * @param[in] width - Viewport width in pixels
- * @param[in] height - Viewport height in pixels
+ * @param[in,out] p_lpv_bits - Pointer to buffer of viewport pixels
+ * @param[in]     width - Viewport width in pixels
+ * @param[in]     height - Viewport height in pixels
+ * @param[in]     camera - Player camera
+ * @param[in]     scene - Pointer to scene objects (spheres)
+ * @param[in]     lights - Pointer to scene lights
  */
-void Draw ( BYTE **pLpvBits, int width, int height, Camera cam, Sphere* scene, Light *lights );
+void Draw ( _Inout_ BYTE **p_lpv_bits,
+            _In_ const uint16_t width,
+            _In_ const uint16_t height,
+            _In_ Camera camera,
+            _In_ std::vector<Sphere> &scene,
+            _In_ std::vector<Light> &lights );
 
 /**
  * @brief Initzialises the scene, bitmap height & width etc.
- * @param[in,out] pLpvBits - Pointer to buffer of viewport pixels
- * @param[in] window - Handle to rectangle of viewport
- * @param[in,out] pHBitmap - Handle to a bitmap
+ * @param[in,out] p_lpv_bits - Pointer to buffer of viewport pixels
+ * @param[in,out] p_h_bitmap - Handle to a bitmap
+ * @param[in]     window - Handle to rectangle of viewport
  */
-void Init ( BYTE **pLpvBits, RECT *window, HBITMAP *pHBitmap );
+void Init ( _Inout_ BYTE **p_lpv_bits,
+            _Inout_ HBITMAP *p_h_bitmap,
+            _In_ const RECT *window );
 
 
 /**
  * @brief Returns points of intersection between a ray and sphere
- * @param[in] O - Point of ray origin
- * @param[in] D - Ray direction from O
- * @param[in] sphere - Sphere to check if ray D from origin O will intersect
+ * @param[in] origin - Point of ray origin
+ * @param[in] direction_from_origin - Ray direction from origin
+ * @param[in] sphere - Sphere to check if ray will intersect
+ * @param[in] direction_from_origin_dot_product - Vector dot product
  * @return  Root of possible point,
  *			INFINITY if no points found
  */
-float
-	IntersectRaySphere ( Vect3D O, Vect3D D, Sphere sphere, float dDot );
+float IntersectRaySphere ( _In_ const Vect3D origin,
+                           _In_ const Vect3D direction_from_origin,
+                           _In_ const Sphere sphere,
+                           _In_ const float direction_from_origin_dot_product );
 
 
 /**
@@ -80,55 +101,50 @@ float
  * @param[in] y - Pixel co-ordinate in y direction
  * @param[in] width - Viewport width
  * @param[in] height - Viewport height
- * @return Point in space of specified pixel
+ * @return Translated canvas coordinate of specified pixel
  */
-Vect3D CanvasToViewport ( int x, int y, int width, int height );
+Vect3D CanvasToViewport ( _In_ const uint16_t x,
+                          _In_ const uint16_t y,
+                          _In_ const uint16_t width,
+                          _In_ const uint16_t height );
 
 
 /**
- * @brief Calculate the color of the pixel at a point D
- * @param[in] O - Origin of ray, usually camera position
- * @param[in] D - Ray direction
+ * @brief Calculate the color of the pixel at a point direction_from_origin
+ *
+ * @param[in] origin - Origin of ray, usually camera position
+ * @param[in] direction_from_origin - Ray direction
  * @param[in] t_min - Minimum range of points along ray
  * @param[in] t_max - Maximum range of poitns along ray
- * @param[in] recursionDepth - How many times to calculate reflections
- * @return Color of point D from point
+ * @param[in] recursion_depth - How many times to calculate reflections
+ *
+ * @return Color of point direction_from_origin from point
  */
-COLORREF TraceRay ( Vect3D O,
-					Vect3D D,
-					float t_min,
-					float t_max,
-					int recursionDepth,
-					Sphere *scene,
-					Light *lights );
+WideColor TraceRay ( _In_ const Vect3D origin,
+                     _In_ const Vect3D destination,
+                     _In_ const float t_min,
+                     _In_ const float t_max,
+                     _In_ const uint8_t recursion_depth,
+                     _In_ std::vector<Sphere> &scene,
+                     _In_ std::vector<Light> &lights );
 
 
 /**
- * @brief
- * @param[in] O - Origin of ray, usually camera position
- * @param[in] D - Ray direction
+ * @brief Calculates the closest point from origin to a sphere
+ *
+ * @param[in] origin - Origin of ray, usually camera position
+ * @param[in] direction_from_origin - Ray direction
  * @param[in] t_min - Minimum range of points along ray
  * @param[in] t_max - Maximum range of points along ray
- * @return Point of intersection to a sphere from O with direction D
+ * @param[in] scene - Pointer to scene buffer with objects(spheres)
+ *
+ * @return Intersection with the closest point and intersecting sphere
  */
-Intersection
-	ClosestIntersection ( Vect3D O, Vect3D D, float t_min, float t_max, Sphere* scene);
+Intersection ClosestIntersection ( _In_ const Vect3D origin,
+                                   _In_ const Vect3D direction_from_origin,
+                                   _In_ const float t_min,
+                                   _In_ const float t_max,
+                                   _In_ std::vector<Sphere> &scene );
 
 
-/*------------Template Declarations---------------*/
-template<typename T>
-concept Scalar = std::is_scalar_v<T>;
-
-/**
- * @brief Returns true if a value is between, low and high
- * @tparam T - Any scalar, std::is_scalar_v<T> == true
- * @param value - value to check if its in bounds
- * @param low - lower bound
- * @param high - upper bound
- * @return
- */
-template<Scalar T>
-bool IsInBounds ( const T &value, const T &low, const T &high )
-{
-	return !( value < low ) && ( value < high );
-}
+#endif // !__RAYTRACE_H__
