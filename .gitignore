@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/src/cuda_vector_functions.h
+/src/cuda_matrix_struct.h
