@@ -82,6 +82,7 @@ struct Vect3D
 
     Vect3D norm ( ) const
     {
+		
         return Vect3D( x / len( ), y / len( ), z / len( ) );
     }
 
