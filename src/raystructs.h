@@ -1,11 +1,12 @@
-/*********************************************************************
- * @file	raystructs.h
- * @brief	Structs for raytracing
- *			3D vectors, spheres, lights....
+/*******************************************************************************
+ * 
+ *  @brief     Raytrace structs
+ *  @author    Johan Karlsson - github.com/dosalock
+ *  @date      8.11.2024
+ *  @copyright Copyright © [2024] [Johan Karlsson]
  *
- * @author	Johan Karlsson - github.com/dosalock
- * @date	November 2024
- *********************************************************************/
+ ******************************************************************************/
+
 #ifndef __RAYSTRUCTS_H__
 #define __RAYSTRUCTS_H__
 

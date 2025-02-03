@@ -50,8 +50,8 @@ float CalcLight ( _In_ const Vect3D intersection_point,
                   _In_ const Vect3D normalized_sphere_vector,
                   _In_ const Vect3D point_to_camera,
                   _In_ const uint32_t sphere_specularity,
-                  _In_ std::vector<Sphere> &scene,
-                  _In_ std::vector<Light> &lights );
+                  _In_ const std::vector<Sphere> &scene,
+                  _In_ const std::vector<Light> &lights );
 
 /**
  * @brief Main draw function, sets all the pixel values
@@ -66,8 +66,8 @@ void Draw ( _Inout_ BYTE **p_lpv_bits,
             _In_ const uint16_t width,
             _In_ const uint16_t height,
             _In_ Camera camera,
-            _In_ std::vector<Sphere> &scene,
-            _In_ std::vector<Light> &lights );
+            _In_ const std::vector<Sphere> &scene,
+            _In_ const std::vector<Light> &lights );
 
 /**
  * @brief Initzialises the scene, bitmap height & width etc.
@@ -125,8 +125,8 @@ WideColor TraceRay ( _In_ const Vect3D origin,
                      _In_ const float t_min,
                      _In_ const float t_max,
                      _In_ const uint8_t recursion_depth,
-                     _In_ std::vector<Sphere> &scene,
-                     _In_ std::vector<Light> &lights );
+                     _In_ const std::vector<Sphere> &scene,
+                     _In_ const std::vector<Light> &lights );
 
 
 /**
@@ -144,7 +144,7 @@ Intersection ClosestIntersection ( _In_ const Vect3D origin,
                                    _In_ const Vect3D direction_from_origin,
                                    _In_ const float t_min,
                                    _In_ const float t_max,
-                                   _In_ std::vector<Sphere> &scene );
+                                   _In_ const std::vector<Sphere> &scene );
 
 
 #endif // !__RAYTRACE_H__

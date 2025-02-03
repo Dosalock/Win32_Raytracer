@@ -1,4 +1,4 @@
-/**
+/*******************************************************************************
  *
  *  @file      raytrace.cpp
  *  @brief     Declaration of core raytracing functionality
@@ -6,8 +6,7 @@
  *  @date      8.11.2024
  *  @copyright Copyright © [2024] [Johan Karlsson]
  *
- */
-
+ ******************************************************************************/
 
 /*------------------Libraries---------------------*/
 #include "raytrace.h"
@@ -47,7 +46,7 @@ void CreateScene ( _Out_ std::vector<Sphere> &scene,
     Sphere sphere = { };
 
     sphere.center         = Vect3D( 0, -1, 3 );
-    sphere.radius         = 1.0f;
+    sphere.radius         = 1;
     sphere.color          = WideColor( 255, 0, 0 );
     sphere.specularity    = 500;
     sphere.reflective     = 0.2f;
@@ -58,7 +57,7 @@ void CreateScene ( _Out_ std::vector<Sphere> &scene,
     sphere.radius         = 1;
     sphere.color          = WideColor( 0, 0, 255 );
     sphere.specularity    = 500;
-    sphere.reflective     = 0.3;
+    sphere.reflective     = 0.3f;
     sphere.raidus_squared = sphere.radius * sphere.radius;
     scene.push_back( sphere );
 
@@ -66,7 +65,7 @@ void CreateScene ( _Out_ std::vector<Sphere> &scene,
     sphere.radius         = 1;
     sphere.color          = WideColor( 0, 255, 0 );
     sphere.specularity    = 10;
-    sphere.reflective     = 0.4;
+    sphere.reflective     = 0.4f;
     sphere.raidus_squared = sphere.radius * sphere.radius;
     scene.push_back( sphere );
 
@@ -74,7 +73,7 @@ void CreateScene ( _Out_ std::vector<Sphere> &scene,
     sphere.radius         = 5000;
     sphere.color          = WideColor( 255, 255, 0 );
     sphere.specularity    = 1000;
-    sphere.reflective     = 0.5;
+    sphere.reflective     = 0.5f;
     sphere.raidus_squared = sphere.radius * sphere.radius;
     scene.push_back( sphere );
 
@@ -99,8 +98,8 @@ float CalcLight ( _In_ const Vect3D intersection_point,
                   _In_ const Vect3D normalized_sphere_vector,
                   _In_ const Vect3D point_to_camera,
                   _In_ const uint32_t sphere_specularity,
-                  _In_ std::vector<Sphere> &scene,
-                  _In_ std::vector<Light> &lights )
+                  _In_ const std::vector<Sphere> &scene,
+                  _In_ const std::vector<Light> &lights )
 {
     float intensity       = 0.0;
     float t_max           = 0;
@@ -274,7 +273,7 @@ Intersection ClosestIntersection ( _In_ const Vect3D origin,
                                    _In_ const Vect3D direction_from_origin,
                                    _In_ const float t_min,
                                    _In_ const float t_max,
-                                   _In_ std::vector<Sphere> &scene )
+                                   _In_ const std::vector<Sphere> &scene )
 {
     Sphere *closest_sphere = NULL;
     float closest_point_t  = INFINITY;
@@ -305,8 +304,8 @@ WideColor TraceRay ( _In_ const Vect3D origin,
                      _In_ const float t_min,
                      _In_ const float t_max,
                      _In_ const uint8_t recursion_depth,
-                     _In_ std::vector<Sphere> &scene,
-                     _In_ std::vector<Light> &lights )
+                     _In_ const std::vector<Sphere> &scene,
+                     _In_ const std::vector<Light> &lights )
 {
     Vect3D intersection_sphere_normal = { };
     Vect3D origin_to_destination      = { };
@@ -377,8 +376,8 @@ void Draw ( _Inout_ BYTE **p_lpv_bits,
             _In_ const uint16_t width,
             _In_ const uint16_t height,
             _In_ Camera camera,
-            _In_ std::vector<Sphere> &scene,
-            _In_ std::vector<Light> &lights )
+            _In_ const std::vector<Sphere> &scene,
+            _In_ const std::vector<Light> &lights )
 {
     Vect3D projection_plane_point  = { };
     Vect3D translated_camera_point = { };
