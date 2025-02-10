@@ -1,5 +1,5 @@
 /*******************************************************************************
- * 
+ *
  *  @brief     Raytrace structs
  *  @author    Johan Karlsson - github.com/dosalock
  *  @date      8.11.2024
@@ -13,7 +13,6 @@
 /*-----------------------------Includes------------------------------*/
 #include <Windows.h>
 #include <cmath>
-
 
 /*-----------------------------Structs-------------------------------*/
 
@@ -112,7 +111,6 @@ struct Vect3D
 
     Vect3D norm ( ) const
     {
-		
         return Vect3D( x / len( ), y / len( ), z / len( ) );
     }
 
@@ -135,11 +133,11 @@ struct Sphere
     float reflective;
     float raidus_squared;
 
-    Sphere ( Vect3D center    = { },
-             float radius     = 0.0f,
-             WideColor color  = { 0, 0, 0 },
-             uint32_t specularity  = 0,
-             float reflective = 0.0f ) :
+    Sphere ( Vect3D center        = { },
+             float radius         = 0.0f,
+             WideColor color      = { 0, 0, 0 },
+             uint32_t specularity = 0,
+             float reflective     = 0.0f ) :
         center( center ),
         radius( radius ),
         color( color ),
@@ -189,7 +187,14 @@ struct Camera
     float pitch;
     float roll;
 
-    float DegreesToRadian ( float degrees )
+private:
+
+    /**
+     * @brief Given a degree it calculates the radian equivalent
+     * @param degrees - Angle in degrees
+     * @return Radian equivalent of given angle
+     */
+    float DegreesToRadian ( _In_ const float &degrees )
     {
         return degrees * 0.01745329252f; /* degrees * PI / 180.0f */
     }
@@ -200,7 +205,7 @@ struct Camera
      * @param[in] yaw - Degrees to rotate
      * @return Rotated vector
      */
-    Vect3D RotateYaw ( Vect3D direction, float yaw )
+    Vect3D RotateYaw ( _In_ const Vect3D &direction, _In_ const float &yaw )
     {
         float rad  = DegreesToRadian( yaw );
         float cosY = cosf( rad );
@@ -213,11 +218,11 @@ struct Camera
 
     /**
      * @brief Rotate around X-axis (up-down rotation)
-     * @param direction - D returned by CanvasToViewPort()
-     * @param pitch - Degrees to rotate
+     * @param[in] direction - D returned by CanvasToViewPort()
+     * @param[in] pitch - Degrees to rotate
      * @return Rotated vector
      */
-    Vect3D RotatePitch ( Vect3D direction, float pitch )
+    Vect3D RotatePitch ( _In_ const Vect3D &direction, _In_ const float &pitch )
     {
         float rad  = DegreesToRadian( pitch );
         float cosX = cosf( rad );
@@ -230,11 +235,11 @@ struct Camera
 
     /**
      * @brief Rotate around Z-axis (side-side rotation)
-     * @param direction - D returned by CanvasToViewPort()
-     * @param roll - Degrees to rotate
+     * @param[in] direction - D returned by CanvasToViewPort()
+     * @param[in] roll - Degrees to rotate
      * @return Rotated Vector
      */
-    Vect3D RotateRoll ( Vect3D direction, float roll )
+    Vect3D RotateRoll ( _In_ const Vect3D &direction, _In_ const float &roll )
     {
         float rad  = DegreesToRadian( roll );
         float cosZ = cosf( rad );
@@ -245,18 +250,9 @@ struct Camera
                        direction.z );
     }
 
-    Vect3D ApplyCameraRotation ( Vect3D direction, Camera cam )
-    {
-        direction = RotateYaw( direction, cam.yaw );
-        direction = RotatePitch( direction, cam.pitch );
-        direction = RotateRoll( direction, cam.roll );
-
-        return direction;
-    }
-
     /**
-     * @brief Calculates normalized vector with forward direction for use in " W
-     * = move forward "
+     * @brief Calculates which way is forward for the camera
+     * @note for use in " W = move forward "
      * @return Normalized vector
      */
     Vect3D CalculateForwardFromEuler ( )
@@ -271,11 +267,13 @@ struct Camera
         return Vect3D( cosPitch * sinYaw, sinPitch, cosPitch * cosYaw ).norm( );
     }
 
+public:
+
     /**
      * @brief Moves camera forward
-     * @param move_speed - Movement multiplier, backwards < 0 < forewards
+     * @param[in] move_speed - Movement multiplier, backwards < 0 < forewards
      */
-    void MoveForward ( float moveSpeed )
+    void MoveForward ( _In_ const float &moveSpeed )
     {
         Vect3D forward  = CalculateForwardFromEuler( );
         position.x     += forward.x * moveSpeed;
@@ -284,10 +282,25 @@ struct Camera
     }
 
     /**
-     * @brief Moves camera sideways
-     * @param move_speed - Movemet multiplier, right < 0 < left
+     * @brief Applies rotation to camera vector, this enables turning
+     * @param[in,out] direction - Current viewing direction
+     * @param[in,out] cam - Camera to apply rotation to
+     * @return
      */
-    void MoveSideways ( float moveSpeed )
+    Vect3D ApplyCameraRotation (_Inout_ Vect3D &direction, _Inout_ Camera &cam )
+    {
+        direction = RotateYaw( direction, cam.yaw );
+        direction = RotatePitch( direction, cam.pitch );
+        direction = RotateRoll( direction, cam.roll );
+
+        return direction;
+    }
+
+    /**
+     * @brief Moves camera sideways
+     * @param[in] move_speed - Movemet multiplier, right < 0 < left
+     */
+    void MoveSideways ( _In_ const float &moveSpeed )
     {
         Vect3D right  = CalculateForwardFromEuler( ).cross( Vect3D( 0, 1, 0 ) );
         position.x   += right.x * moveSpeed;
