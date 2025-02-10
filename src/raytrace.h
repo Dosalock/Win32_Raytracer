@@ -40,14 +40,12 @@ void CreateScene ( _Out_ std::vector<Sphere> &scene,
 
 /**
  * @brief Calculates how bright a point is
- * 
  * @param[in] intersection_point - Intersection
  * @param[in] normal_sphere_vector - Normalized vector from center of sphere
  * @param[in] point_to_camera - Vector from point to camera
  * @param[in] sphere_specularity - Specularity value of object
  * @param[in] scene - Vector with scene objects
  * @param[in] lights - Vector with scene lights
- * 
  * @return Float - Intensity multiplier
  */
 float CalcLight ( _In_ const Vect3D intersection_point,
@@ -59,7 +57,6 @@ float CalcLight ( _In_ const Vect3D intersection_point,
 
 /**
  * @brief Main draw function, sets all the pixel values
- * 
  * @param[in,out] p_lpv_bits - Pointer to buffer of viewport pixels
  * @param[in]     width - Viewport width in pixels
  * @param[in]     height - Viewport height in pixels
@@ -76,7 +73,6 @@ void Draw ( _Inout_ BYTE **p_lpv_bits,
 
 /**
  * @brief Initzialises the scene, bitmap height & width etc.
- * 
  * @param[in,out] p_lpv_bits - Pointer to buffer of viewport pixels
  * @param[in,out] p_h_bitmap - Handle to a bitmap
  * @param[in]     window - Handle to rectangle of viewport
@@ -88,12 +84,10 @@ void Init ( _Inout_ BYTE **p_lpv_bits,
 
 /**
  * @brief Returns points of intersection between a ray and sphere
- * 
  * @param[in] origin - Point of ray origin
  * @param[in] direction_from_origin - Ray direction from origin
  * @param[in] sphere - Sphere to check if ray will intersect
  * @param[in] direction_from_origin_dot_product - Vector dot product
- * 
  * @return  A root (point) of intersection,
  *			INFINITY if no points found
  */
@@ -105,12 +99,10 @@ float IntersectRaySphere ( _In_ const Vect3D origin,
 
 /**
  * @brief Calculates corresponding point in space of pixel[x][y]
- * 
  * @param[in] x - Pixel co-ordinate in x direction
  * @param[in] y - Pixel co-ordinate in y direction
  * @param[in] width - Viewport width
  * @param[in] height - Viewport height
- * 
  * @return Translated canvas coordinate of specified pixel
  */
 Vect3D CanvasToViewport ( _In_ const uint16_t x,
@@ -121,7 +113,6 @@ Vect3D CanvasToViewport ( _In_ const uint16_t x,
 
 /**
  * @brief Calculate the color of the pixel at a point direction_from_origin
- *
  * @param[in] origin - Origin of ray, usually camera position
  * @param[in] direction_from_origin - Ray direction
  * @param[in] t_min - Minimum range of points along ray
@@ -129,7 +120,6 @@ Vect3D CanvasToViewport ( _In_ const uint16_t x,
  * @param[in] recursion_depth - How many times to calculate reflections
  * @param[in] scene - Vector of scene objects
  * @param[in] lights - Vector of scene lights
- *
  * @return Color of point direction_from_origin from point
  */
 WideColor TraceRay ( _In_ const Vect3D origin,
@@ -143,13 +133,11 @@ WideColor TraceRay ( _In_ const Vect3D origin,
 
 /**
  * @brief Calculates the closest point from origin to a sphere
- *
  * @param[in] origin - Origin of ray, usually camera position
  * @param[in] direction_from_origin - Ray direction
  * @param[in] t_min - Minimum range of points along ray
  * @param[in] t_max - Maximum range of points along ray
  * @param[in] scene - Pointer to scene buffer with objects(spheres)
- *
  * @return Intersection with the closest point and intersecting sphere
  */
 Intersection ClosestIntersection ( _In_ const Vect3D origin,

@@ -22,9 +22,7 @@
 
 /**
  * @brief Clamps color channel between 0 and 255
- *
  * @param color - Color channel
- *
  * @return Returns a uint16_t color channel thats been clamped
  */
 inline COLORREF ClampColor ( _In_ const WideColor color )
@@ -37,10 +35,8 @@ inline COLORREF ClampColor ( _In_ const WideColor color )
 
 /**
  * @brief Applies multiplier to color, channel wise
- *
  * @param[in] color - A color with 32 bit color channels
  * @param[in] multiplier - Multiplier
- *
  * @return Color product of color and multiplier
  */
 inline WideColor ApplyMultiplierToColor ( _In_ const WideColor &color,
@@ -56,11 +52,9 @@ inline WideColor ApplyMultiplierToColor ( _In_ const WideColor &color,
 /**
  * @brief Calculates final color of point, taking reflectiveness and reflection
  * modifiers into account
- *
  * @param lit_color - Base color after light calculations
  * @param reflected_color - Color from inverted ray of reflection
  * @param reflectiveness - Reflectiveness of the sphere where the point exists
- *
  * @return
  */
 inline WideColor CalculateFinalColor ( _In_ const WideColor &lit_color,
@@ -80,7 +74,6 @@ inline WideColor CalculateFinalColor ( _In_ const WideColor &lit_color,
 
 /**
  * @brief Sets pixel at offset to color
- *
  * @param[in,out] p_lpv_bits - Pointer to pixel buffer
  * @param[in]     offset - Offset into pixel buffer for wanted pixel
  * @param[in]     color - Wanted color of pixel
@@ -101,13 +94,10 @@ concept Scalar = std::is_scalar_v<T>;
 
 /**
  * @brief Returns true if a value is between, low and high
- *
  * @tparam T - Any scalar, std::is_scalar_v<T> == true
- *
  * @param value - value to check if its in bounds
  * @param low - lower bound
  * @param high - upper bound
- *
  * @return
  */
 template<Scalar ValueType, Scalar LowType, Scalar HighType>
