@@ -11,12 +11,41 @@
 #define __RAYSTRUCTS_H__
 
 /*-----------------------------Includes------------------------------*/
-#include "helper.h"
 #include <Windows.h>
 #include <cmath>
 
 
 /*-----------------------------Structs-------------------------------*/
+
+/**
+ * @struct WideColor raystructs.h raystructs
+ * @brief A color struct with 32 bit channels to prevent overflowing
+ */
+struct WideColor
+{
+    uint32_t red;
+    uint32_t green;
+    uint32_t blue;
+
+    WideColor ( uint32_t red = 0, uint32_t green = 0, uint32_t blue = 0 ) :
+        red( red ), green( green ), blue( blue )
+    {
+    }
+
+    WideColor operator+ ( const WideColor &other ) const
+    {
+        return WideColor( red + other.red,
+                          green + other.green,
+                          blue + other.blue );
+    }
+
+    WideColor operator- ( const WideColor &other ) const
+    {
+        return WideColor( red - other.red,
+                          green - other.green,
+                          blue - other.blue );
+    }
+};
 
 /**
  * @struct Vect3D raystruct.h

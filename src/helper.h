@@ -17,33 +17,8 @@
 #include <Windows.h>
 #include <algorithm>
 #include <cstdint>
+#include "raystructs.h"
 
-struct WideColor
-{
-    uint32_t red;
-    uint32_t green;
-    uint32_t blue;
-
-	WideColor ( uint32_t red = 0, uint32_t green = 0, uint32_t blue = 0 )
-        :red( red ),
-        green( green ), blue( blue )
-    {
-    }
-
-    WideColor operator+ ( const WideColor &other ) const
-    {
-        return WideColor( red + other.red,
-                          green + other.green,
-                          blue + other.blue );
-    }
-
-    WideColor operator- ( const WideColor &other ) const
-    {
-        return WideColor( red - other.red,
-                          green - other.green,
-                          blue - other.blue );
-    }
-};
 
 /**
  * @brief Clamps color channel between 0 and 255
