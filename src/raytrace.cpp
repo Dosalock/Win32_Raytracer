@@ -80,17 +80,17 @@ void CreateScene ( _Out_ std::vector<Sphere> &scene,
     Light light     = { };
     light.type      = light.AMBIENT;
     light.intensity = 0.2f;
-    light.pos       = { 0, 0, 0 }; // prettysure this is useless
+    light.pos       = Vect3D( 0, 0, 0 ); // prettysure this is useless
     lights.push_back( light );
 
     light.type      = light.POINT;
     light.intensity = 0.6f;
-    light.pos       = { 2, 1, 0 };
+    light.pos       = Vect3D(2, 1, 0 );
     lights.push_back( light );
 
     light.type      = light.DIRECTIONAL;
     light.intensity = 0.2f;
-    light.pos       = { 1, 4, 4 };
+    light.pos       = Vect3D(1, 4, 4 );
     lights.push_back( light );
 }
 
@@ -101,7 +101,7 @@ float CalcLight ( _In_ const Vect3D intersection_point,
                   _In_ const std::vector<Sphere> &scene,
                   _In_ const std::vector<Light> &lights )
 {
-    float intensity       = 0.0;
+    float intensity       = 0;
     float t_max           = 0;
     Vect3D light_position = { };
 
@@ -110,10 +110,12 @@ float CalcLight ( _In_ const Vect3D intersection_point,
         if ( light.type == Light::AMBIENT )
         {
             intensity += light.intensity;
+			
+			/* Exit if max brightness */
             if ( intensity >= 1.0f )
             {
                 return 1.0f;
-            }
+            }	
         }
         else
         {
@@ -144,14 +146,14 @@ float CalcLight ( _In_ const Vect3D intersection_point,
             float sphere_light_alignment =
                 normalized_sphere_vector.dot( light_position );
 
-            /* If < it is behind */
+            /* If < 0, it is behind */
             if ( sphere_light_alignment > 0 )
             {
                 intensity += light.intensity * sphere_light_alignment
                              / ( normalized_sphere_vector.len( )
                                  * light_position.len( ) );
             }
-
+			
             if ( sphere_specularity != -1 )
             {
                 Vect3D sphere_to_light =
@@ -160,7 +162,7 @@ float CalcLight ( _In_ const Vect3D intersection_point,
                 float vector_alignment_to_camera =
                     sphere_to_light.dot( point_to_camera );
 
-                /* If < 0 the object is behind the camera */
+                /* If < 0, the object is behind the camera */
                 if ( vector_alignment_to_camera > 0 )
                 {
                     intensity +=
@@ -331,14 +333,14 @@ WideColor TraceRay ( _In_ const Vect3D origin,
     intersection_sphere_normal =
         ( origin_to_destination - closest_sphere->center ).norm( );
 
-    /* Calculate light modification to color of the point */
+    /* Calculate color lighting multiplier at the point */
     float color_lighting_modifier = CalcLight( origin_to_destination,
                                                intersection_sphere_normal,
                                                destination.invert( ),
                                                closest_sphere->specularity,
                                                scene,
                                                lights );
-
+	
     WideColor lit_color = ApplyMultiplierToColor( closest_sphere->color,
                                                   color_lighting_modifier );
 

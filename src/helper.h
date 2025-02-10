@@ -38,7 +38,7 @@ inline COLORREF ClampColor ( _In_ const WideColor color )
 /**
  * @brief Applies multiplier to color, channel wise
  *
- * @param[in] color - Color, COLOREF
+ * @param[in] color - A color with 32 bit color channels
  * @param[in] multiplier - Multiplier
  *
  * @return Color product of color and multiplier

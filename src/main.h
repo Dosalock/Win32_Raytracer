@@ -10,7 +10,6 @@
 
 /*------------------Libraries---------------------*/
 #include "Windows.h"
-#include <vector>
 /*----------------My Libraries---------------------*/
 #include "raystructs.h"
 #include "raytrace.h"
